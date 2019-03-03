@@ -10,8 +10,8 @@ https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
 * Select a Project
 * Enable or Manage
 * Choose Credentials
-** Create a new Credential or make sure you have the JSON
-** Copy JSON and save as `google_creds.json` in the root of this project
+..** Create a new Credential or make sure you have the JSON
+..** Copy JSON and save as `google_creds.json` in the root of this project
 
 ### Installation
 npm dependencies (contained in the `package.json`):
