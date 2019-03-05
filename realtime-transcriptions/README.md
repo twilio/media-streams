@@ -27,9 +27,8 @@ Start with `node ./server.js`
 ## Making the demo work
 
 1. Run the node server (listening in 8080 port)
-2. Use ngrok to make it public available:
+2. Use ngrok to make it publicly available:
    `ngrok http 8080`
-3. Edit the next TwiML bin to add your ngrok URL as `wss://<ngrok url>`:
-  `templates/streams.xml`
-4. Run the next curl command in order to make the proper call
+3. Edit the streams.xml file in the `templates` directory and add your ngrok URL as `wss://<ngrok url>`
+4. Run the curl command in order to make the proper call
 `curl -XPOST https://api.dev.twilio.com/2010-04-01/Accounts/ACd0250b337a5a1912f6dce8f752195daa/Calls.json -d "Url=http://<ngrok url>/twiml" -d "To=<NUMBER-PHONE>" -d "From=+16028837400" -u ACd0250b337a5a1912f6dce8f752195daa:23ff7ff6f88da448e469908b86f61ae7`
