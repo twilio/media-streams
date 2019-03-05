@@ -1,6 +1,8 @@
 "use strict";
 require('dotenv').load();
 
+const fs = require('fs');
+const path = require('path');
 var http = require('http');
 var HttpDispatcher = require('httpdispatcher');
 var WebSocketServer = require('websocket').server;
@@ -10,6 +12,7 @@ var dispatcher = new HttpDispatcher();
 const speech = new Speech.SpeechClient();
 
 var wsserver = http.createServer(handleRequest);
+
 
 var mediaws = new WebSocketServer({
   httpServer: wsserver,
@@ -23,6 +26,19 @@ function handleRequest(request, response){
       console.log(err);
   }
 }
+
+dispatcher.onPost('/twiml', function(req,res) {
+  var filePath = path.join(__dirname+'/templates', 'streams.xml');
+  var stat = fs.statSync(filePath);
+
+  res.writeHead(200, {
+    'Content-Type': 'text/xml',
+    'Content-Lenght': stat.size
+  });
+
+  var readStream = fs.createReadStream(filePath);
+  readStream.pipe(res);
+});
 
 mediaws.on('connect', function(connection) {
   console.log((new Date()) + 'Media WS: Connection accepted');
