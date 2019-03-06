@@ -44,7 +44,7 @@ Start with `node ./server.js`
     `export GOOGLE_APPLICATION_CREDENTIALS="~/Projects/media-streams-demos/realtime-transcriptions/google_creds.json"`
 5. Use ngrok to make it publicly available:
    `ngrok http 8080`
-6. Edit the streams.xml file in the `templates` directory and add your ngrok URL as `wss://<ngrok url>`
+6. Edit the `streams.xml` file in the `templates` directory and add your ngrok URL as `wss://<ngrok url>`
 7. Run `python ./server.py`
-8. Run the curl command in order to make the proper call
+8. Run the curl command in order to make the create the outbound call
 `curl -XPOST https://api.dev.twilio.com/2010-04-01/Accounts/ACd0250b337a5a1912f6dce8f752195daa/Calls.json -d "Url=http://<ngrok url>/twiml" -d "To=<NUMBER-PHONE>" -d "From=+16028837400" -u ACd0250b337a5a1912f6dce8f752195daa:23ff7ff6f88da448e469908b86f61ae7`
