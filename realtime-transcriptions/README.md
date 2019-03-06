@@ -41,7 +41,7 @@ Start with `node ./server.js`
 2. Activate your virtualvenv `. venv/bin/activate`
 3. Run `pip install -r requirements.txt`
 4. Set the Google App Credentials from above for your env.
-    `export GOOGLE_APPLICATION_CREDENTIALS="/Users/twells/Projects/media-streams-demos/realtime-transcriptions/google_creds.json"`
+    `export GOOGLE_APPLICATION_CREDENTIALS="~/Projects/media-streams-demos/realtime-transcriptions/google_creds.json"`
 5. Use ngrok to make it publicly available:
    `ngrok http 8080`
 6. Edit the streams.xml file in the `templates` directory and add your ngrok URL as `wss://<ngrok url>`
