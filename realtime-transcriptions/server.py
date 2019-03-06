@@ -2,6 +2,7 @@ import asyncio
 import os
 import websockets
 import sys
+import base64
 
 from flask import Flask, render_template
 from flask_sockets import Sockets
@@ -27,7 +28,7 @@ ee = EventEmitter()
 def returnTwiml():
     return render_template('streams.xml')
 
-@sockets.route('/streams')
+@sockets.route('/')
 def pcmu(ws):
     while not ws.closed:
         message = ws.receive()
@@ -35,7 +36,7 @@ def pcmu(ws):
             return
 
         print('Received: {}'.format(bytes(message)))
-        request = types.StreamingRecognizeRequest(audio_content=bytes(message))
+        request = types.StreamingRecognizeRequest(audio_content=base64.b64encode(bytes(message)))
         requests = [request]
         # streaming_recognize returns a generator.
         responses = client.streaming_recognize(streaming_config, requests)
