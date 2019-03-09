@@ -10,6 +10,7 @@ from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
 from pyee import EventEmitter
+from pdb import set_trace as bp
 
 client = speech.SpeechClient()
 config = types.RecognitionConfig(
@@ -28,19 +29,42 @@ ee = EventEmitter()
 def returnTwiml():
     return render_template('streams.xml')
 
+
+import queue
+from threading import Thread
+class RequestGenerator:
+    def __init__(self):
+        self._queue = queue.Queue()
+        self._ended = False
+
+    def terminate(self):
+        self._ended = True
+
+    def addRequest(self, buffer):
+        self._queue.put(types.StreamingRecognizeRequest(audio_content=bytes(buffer)))
+
+    def getRequests(self):
+        while not self._ended:
+            yield self._queue.get()
+        return
+
 @sockets.route('/')
 def pcmu(ws):
+    print("WS connection openned")
+    myQueue = RequestGenerator()
+    responses = client.streaming_recognize(streaming_config, myQueue.getRequests())
+    thread = Thread(target=listen_print_loop, args=[responses])
+    thread.start()
+    print("Thread started")
+
     while not ws.closed:
         message = ws.receive()
         if message is None:
+            myQueue.terminate()
             return
 
-        print('Received: {}'.format(bytes(message)))
-        request = types.StreamingRecognizeRequest(audio_content=base64.b64encode(bytes(message)))
-        requests = [request]
-        # streaming_recognize returns a generator.
-        responses = client.streaming_recognize(streaming_config, requests)
-        ee.emit('response',responses)
+        myQueue.addRequest(message)
+    print("WS connection closed")
 
 
 @ee.on('response')
@@ -66,7 +90,10 @@ def listen_print_loop(responses):
     final one, print a newline to preserve the finalized transcription.
     """
     num_chars_printed = 0
+    print("Before responses loop")
     for response in responses:
+        #print("ANALYZING RESPONSE")
+        #bp()
         if response.error:
             print(response.error)
 
@@ -101,11 +128,12 @@ def listen_print_loop(responses):
 
             # Exit recognition if any of the transcribed phrases could be
             # one of our keywords.
-            if re.search(r'\b(exit|quit)\b', transcript, re.I):
-                print('Exiting..')
-                break
+            #if re.search(r'\b(exit|quit)\b', transcript, re.I):
+            #    print('Exiting..')
+            #    break
 
             num_chars_printed = 0
+    print("Ending responses loop")
 
 
 
