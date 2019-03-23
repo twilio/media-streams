@@ -63,8 +63,11 @@ class TranscriptionStream {
   }
 
   close(){
-    console.log((new Date()) + 'Media WS: closed')
-    this.stream.destroy();
+    console.log((new Date()) + 'Media WS: closed');
+
+    if (this.stream){
+      this.stream.destroy();
+    }
   }
 
   newStreamRequired() {
