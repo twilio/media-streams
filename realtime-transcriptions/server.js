@@ -13,7 +13,6 @@ const speech = new Speech.SpeechClient();
 
 var wsserver = http.createServer(handleRequest);
 
-
 var mediaws = new WebSocketServer({
   httpServer: wsserver,
   autoAcceptConnections: true,
@@ -21,9 +20,9 @@ var mediaws = new WebSocketServer({
 
 function handleRequest(request, response){
   try {
-      dispatcher.dispatch(request, response);
+    dispatcher.dispatch(request, response);
   } catch(err) {
-      console.log(err);
+    console.log(err);
   }
 }
 
@@ -47,11 +46,11 @@ mediaws.on('connect', function(connection) {
 
 class TranscriptionStream {
   constructor(connection) {
-      this.streamCreatedAt = null;
-      this.stream = null;
+    this.streamCreatedAt = null;
+    this.stream = null;
 
-      connection.on('message', this.processMessage.bind(this));
-      connection.on('close', this.close.bind(this));
+    connection.on('message', this.processMessage.bind(this));
+    connection.on('close', this.close.bind(this));
   }
 
   processMessage(message){
