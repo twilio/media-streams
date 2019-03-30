@@ -56,9 +56,15 @@ class TranscriptionStream {
 
   processMessage(message){
     if (message.type === 'utf8') {
-        console.log((new Date()) + 'Media WS: text message received (not supported)');
+      var data = JSON.parse(message.utf8Data);
+      if (data.sequenceNumber == 1) {
+        console.log((new Date()) + 'Media WS: received media and metadata: '
+          + JSON.stringify(data));
+      }
+
+      this.getStream().write(data.payload);
     } else if (message.type === 'binary') {
-        this.getStream().write(message.binaryData);
+      console.log((new Date()) + 'Media WS: binary message received (not supported)');
     }
   }
 
