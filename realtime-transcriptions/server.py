@@ -6,6 +6,9 @@ from SpeechClientBridge import SpeechClientBridge
 from google.cloud.speech import enums
 from google.cloud.speech import types
 
+import json
+import base64
+
 config = types.RecognitionConfig(
     encoding=enums.RecognitionConfig.AudioEncoding.MULAW,
     sample_rate_hertz=8000,
@@ -42,7 +45,13 @@ def transcript(ws):
         if message is None:
             bridge.terminate()
             break
-        bridge.addRequest(message)
+
+        data = json.loads(message)
+        if data["sequenceNumber"] is "1":
+            print("Media WS: received media and metadata: " + str(data))
+
+        buffer = base64.b64decode(data["payload"])
+        bridge.addRequest(buffer)
 
     print("WS connection closed")
 
