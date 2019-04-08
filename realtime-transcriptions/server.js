@@ -9,9 +9,11 @@ var WebSocketServer = require('websocket').server;
 const Speech = require('@google-cloud/speech');
 
 var dispatcher = new HttpDispatcher();
+var wsserver = http.createServer(handleRequest);
+
 const speech = new Speech.SpeechClient();
 
-var wsserver = http.createServer(handleRequest);
+const HTTP_SERVER_PORT = 8080;
 
 var mediaws = new WebSocketServer({
   httpServer: wsserver,
@@ -27,6 +29,8 @@ function handleRequest(request, response){
 }
 
 dispatcher.onPost('/twiml', function(req,res) {
+  console.log((new Date()) + 'POST TwiML');
+
   var filePath = path.join(__dirname+'/templates', 'streams.xml');
   var stat = fs.statSync(filePath);
 
@@ -120,6 +124,6 @@ class TranscriptionStream {
   }
 }
 
-wsserver.listen(8080, function(){
-  console.log("Server listening on: http://localhost:%s", 8080);
+wsserver.listen(HTTP_SERVER_PORT, function(){
+  console.log("Server listening on: http://localhost:%s", HTTP_SERVER_PORT);
 });
