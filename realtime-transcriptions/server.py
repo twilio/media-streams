@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template
 from flask_sockets import Sockets
 
@@ -8,6 +7,8 @@ from google.cloud.speech import types
 
 import json
 import base64
+
+HTTP_SERVER_PORT = 8080
 
 config = types.RecognitionConfig(
     encoding=enums.RecognitionConfig.AudioEncoding.MULAW,
@@ -22,6 +23,7 @@ sockets = Sockets(app)
 
 @app.route('/twiml', methods=['POST'])
 def returnTwiml():
+    print("POST TwiML")
     return render_template('streams.xml')
 
 def onResponse(response):
@@ -59,6 +61,6 @@ if __name__ == '__main__':
     from gevent import pywsgi
     from geventwebsocket.handler import WebSocketHandler
 
-    server = pywsgi.WSGIServer(('', 8080), app, handler_class=WebSocketHandler)
-    print("Server listening on: http://localhost:8080");
+    server = pywsgi.WSGIServer(('', HTTP_SERVER_PORT), app, handler_class=WebSocketHandler)
+    print("Server listening on: http://localhost:" + str(HTTP_SERVER_PORT))
     server.serve_forever()
