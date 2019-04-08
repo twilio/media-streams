@@ -16,6 +16,8 @@ https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
 ### Node Example
 
 #### Installation
+Run `npm install`
+
 npm dependencies (contained in the `package.json`):
 * dotenv
 * httpdispatcher
