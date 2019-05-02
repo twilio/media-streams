@@ -21,10 +21,10 @@ Start with `node ./server.js`
 
 #### Running the server
 
-1. Create your virtualenv `python3.6 -m venv --without-pip test`
+1. Create your virtualenv `python3 -m venv --without-pip env`
 2. Run `source env/bin/activate`
-3. Run `pip3.6 install -r requirements.txt`
-5. Run `python3.6 ./server.py`
+3. Run `pip install -r requirements.txt`
+5. Run `python ./server.py`
 
 ## Making the demo work
 
