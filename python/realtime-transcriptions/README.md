@@ -14,30 +14,7 @@ https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
   * Create a new Credential or make sure you have the JSON
   * Copy JSON and save as `google_creds.json` in the root of this project
 
-### Node Example
-
-#### Installation
-
-Run `npm install`
-
-##### npm dependencies (defined in the `package.json`):
-
-* dotenv
-* httpdispatcher
-* websocket
-* @google-cloud/speech
-
-#### Running the server
-
-Start with `node ./server.js`
-
-#### Useful pointers
-
-https://cloud.google.com/nodejs/docs/reference/speech/2.2.x/v1.SpeechClient#properties
-
-### Python Example
-
-#### Running the server
+### Running the server
 
 1. Create your virtualenv `python -m venv --without-pip test`
 2. Run `source env/bin/activate`

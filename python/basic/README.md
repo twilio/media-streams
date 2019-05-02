@@ -6,23 +6,7 @@ It's a good starting point to develop your own application logic.
 
 ## App sever setup
 
-### Node Example
-
-#### Installation
-
-Run `npm install`
-
-npm dependencies (contained in the `package.json`):
-* httpdispatcher
-* websocket
-
-#### Running the server
-
-Start with `node ./server.js`
-
-### Python Example
-
-#### Running the server
+### Running the server
 
 1. Create your virtualenv `python -m venv --without-pip test`
 2. Run `source env/bin/activate`
