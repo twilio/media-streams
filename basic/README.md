@@ -21,7 +21,7 @@ Start with `node ./server.js`
 
 #### Running the server
 
-1. Create your virtualenv `python3 -m venv --without-pip env`
+1. Create your virtualenv `virtualenv -p python3 env`
 2. Run `source env/bin/activate`
 3. Run `pip install -r requirements.txt`
 5. Run `python ./server.py`
