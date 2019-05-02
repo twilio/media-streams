@@ -8,7 +8,7 @@ It's a good starting point to develop your own application logic.
 
 ### Running the server
 
-1. Create your virtualenv `python -m venv --without-pip test`
+1. Create your virtualenv `virtualenv -p python3 env`
 2. Run `source env/bin/activate`
 3. Run `pip install -r requirements.txt`
 4. Run `python ./server.py`

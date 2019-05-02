@@ -16,7 +16,7 @@ https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
 
 ### Running the server
 
-1. Create your virtualenv `python -m venv --without-pip test`
+1. Create your virtualenv `virtualenv -p python3 env`
 2. Run `source env/bin/activate`
 3. Run `pip install -r requirements.txt`
 4. Set the Google App Credentials from above for your env.
