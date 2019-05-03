@@ -18,7 +18,27 @@ npm dependencies (contained in the `package.json`):
 
 Start with `node ./server.js`
 
-## Making the demo work
+## Setup
+
+You can setup your environment to run the demo by using the CLI (BETA) or the Console.
+
+### Configure using the CLI
+
+1. Find available phone number
+`twilio api:v2010:accounts:available-phone-numbers:local:list --country-code="US" --voice-enabled --properties="phoneNumber"`
+
+2. Purchase the phone number (where `+123456789` is a number you found)
+`twilio api:v2010:accounts:incoming-phone-numbers:create --phone-number="+123456789"`
+
+3. Start ngrok
+`ngrok http 8080`
+
+4. Edit the `templates/streams` file to replace `<ngrok url>` with your ngrok host.
+
+5. Make the call where `+123456789` is the Twilio number you bought and `+198765432` is your phone number and `abcdef.ngrok.io` is your ngrok host.
+`twilio api:v2010:accounts:calls:create --from="+123456789" --to="+198765432" --url="https://abcdef.ngrok.io/twiml"`
+
+### Configure using the Console
 
 1. Access the [Twilio console](https://www.twilio.com/console/voice/numbers) to get a `<TWILIO-PHONE-NUMBER>`.
 2. Run the server (listening on port 8080)
