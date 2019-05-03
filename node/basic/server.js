@@ -32,7 +32,7 @@ dispatcher.onPost('/twiml', function(req,res) {
 
   res.writeHead(200, {
     'Content-Type': 'text/xml',
-    'Content-Lenght': stat.size
+    'Content-Length': stat.size
   });
 
   var readStream = fs.createReadStream(filePath);

@@ -36,7 +36,7 @@ def transcript(ws):
             break
 
         data = json.loads(message)
-        if data["sequenceNumber"] is "1":
+        if data["sequenceNumber"] == "1":
             print("Media WS: received media and metadata: " + str(data))
 
     print("WS connection closed")
