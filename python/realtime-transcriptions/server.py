@@ -1,9 +1,10 @@
 from flask import Flask, render_template
 from flask_sockets import Sockets
 
-from SpeechClientBridge import SpeechClientBridge
+from SpeechClientBridge import SpeechClientBridge, TranslationClientBridge
 from google.cloud.speech import enums
 from google.cloud.speech import types
+
 
 import json
 import base64
@@ -20,6 +21,17 @@ streaming_config = types.StreamingRecognitionConfig(
 
 app = Flask(__name__)
 sockets = Sockets(app)
+translator = TranslationClientBridge()
+
+
+languages = {
+    'italian': 'it' ,
+    'spanish': 'es', 
+    'chinese': 'zh-CN',       
+    'german': 'de',
+    'french': 'fr'
+    }
+
 
 @app.route('/twiml', methods=['POST'])
 def returnTwiml():
@@ -35,7 +47,13 @@ def onResponse(response):
         return
 
     transcription = result.alternatives[0].transcript
-    print("Transcription: " + transcription)
+    #print("Transcription: " + transcription)
+    
+    translator.add(transcription)
+
+    for lang, code in languages.items():
+        if lang in transcription.lower():
+            translator.change_language(code)
 
 @sockets.route('/')
 def transcript(ws):
@@ -49,12 +67,16 @@ def transcript(ws):
             break
 
         data = json.loads(message)
-        if data["sequenceNumber"] is "1":
-            print("Media WS: received media and metadata: " + str(data))
+        #if data["sequenceNumber"] is "1":
+        #    print("Media WS: received media and metadata: " + str(data))
 
         buffer = base64.b64decode(data["payload"])
         bridge.addRequest(buffer)
 
+        translator.translate()
+        res = translator.get()
+        if res:
+            print(translator.lang.upper() + ": " + res)
     print("WS connection closed")
 
 if __name__ == '__main__':
