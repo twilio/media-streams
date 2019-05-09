@@ -39,7 +39,7 @@ def onResponse(response):
 
 @sockets.route('/')
 def transcript(ws):
-    print("WS connection openned")
+    print("WS connection opened")
     bridge = SpeechClientBridge(streaming_config, onResponse)
 
     while not ws.closed:

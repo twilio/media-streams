@@ -27,16 +27,16 @@ def onResponse(response):
 
 @sockets.route('/')
 def transcript(ws):
-    print("WS connection openned")
+    print("WS connection opened")
 
     while not ws.closed:
         message = ws.receive()
         if message is None:
-            bridge.terminate()
+            print('No message')
             break
 
         data = json.loads(message)
-        if data["sequenceNumber"] is "1":
+        if data["sequenceNumber"] == "1":
             print("Media WS: received media and metadata: " + str(data))
 
     print("WS connection closed")
