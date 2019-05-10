@@ -16,6 +16,8 @@ https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
 
 ### Installation
 
+**Requires Node >= v12.1.0**
+
 Run `npm install`
 
 #### npm dependencies (defined in the `package.json`):
