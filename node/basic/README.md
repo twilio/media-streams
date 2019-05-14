@@ -8,6 +8,8 @@ It's a good starting point to develop your own application logic.
 
 ### Installation
 
+**Requires Node >= v12.1.0**
+
 Run `npm install`
 
 npm dependencies (contained in the `package.json`):

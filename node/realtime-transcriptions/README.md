@@ -16,6 +16,8 @@ https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
 
 ### Installation
 
+**Requires Node >= v12.1.0**
+
 Run `npm install`
 
 #### npm dependencies (defined in the `package.json`):
@@ -88,3 +90,4 @@ Fri May 03 2019 13:15:20 GMT-0700 (Pacific Daylight Time)Transcription: Okay we 
 Fri May 03 2019 13:15:22 GMT-0700 (Pacific Daylight Time)Transcription: Okay we receive
 
 Fri May 03 2019 13:15:32 GMT-0700 (Pacific Daylight Time)Media WS: closed
+
