@@ -48,23 +48,28 @@ class MediaStream {
   constructor(connection) {
     connection.on('message', this.processMessage.bind(this));
     connection.on('close', this.close.bind(this));
+    this.latestSequence = 0;
   }
 
   processMessage(message){
     if (message.type === 'utf8') {
       var data = JSON.parse(message.utf8Data);
+      if (data.sequenceNumber) {
+        this.latestSequence = data.sequenceNumber;
+      }
       if (data.sequenceNumber == 1) {
-        console.log((new Date()) + 'Media WS: received media and metadata: '
+        console.log((new Date()) + ' Media WS: received media and metadata: '
           + JSON.stringify(data));
+        console.log((new Date()) + ' Media WS:  ADDITIONAL MESSAGES FROM WEBSOCKET BEING SUPPRESED');
       }
 
     } else if (message.type === 'binary') {
-      console.log((new Date()) + 'Media WS: binary message received (not supported)');
+      console.log((new Date()) + ' Media WS: binary message received (not supported)');
     }
   }
 
   close(){
-    console.log((new Date()) + 'Media WS: closed');
+    console.log((new Date()) + ' Media WS: closed. Recieved a total of [' + this.latestSequence + '] messages');
   }
 }
 
