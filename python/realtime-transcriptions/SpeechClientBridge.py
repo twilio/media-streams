@@ -5,7 +5,7 @@ from google.cloud.speech import types
 
 class SpeechClientBridge:
     def __init__(self, streaming_config, onResponse):
-        self._onResponse = onResponse;
+        self._onResponse = onResponse
         self._queue = queue.Queue()
         self._ended = False
 
