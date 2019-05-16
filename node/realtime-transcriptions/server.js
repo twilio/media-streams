@@ -101,7 +101,7 @@ class TranscriptionStream {
           sampleRateHertz: 8000,
           languageCode: 'en-US'
         },
-        interimResults: false
+        interimResults: true
       };
 
       this.streamCreatedAt = new Date();

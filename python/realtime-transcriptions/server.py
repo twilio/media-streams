@@ -16,7 +16,7 @@ config = types.RecognitionConfig(
     language_code='en-US')
 streaming_config = types.StreamingRecognitionConfig(
     config=config,
-    interim_results=False)
+    interim_results=True)
 
 app = Flask(__name__)
 sockets = Sockets(app)
