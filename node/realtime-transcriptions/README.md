@@ -46,7 +46,7 @@ You can setup your environment to run the demo by using the CLI (BETA) or the Co
 ### Configure using the CLI
 
 1. Find available phone number
-`twilio api:core:available-phone-numbers:list --country-code="US" --voice-enabled --properties="phoneNumber"`
+`twilio api:core:available-phone-numbers:local:list --country-code="US" --voice-enabled --properties="phoneNumber"`
 
 2. Purchase the phone number (where `+123456789` is a number you found)
 `twilio api:core:incoming-phone-numbers:create --phone-number="+123456789"`
