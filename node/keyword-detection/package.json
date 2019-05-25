@@ -1,0 +1,21 @@
+{
+  "name": "keyword-detection",
+  "version": "1.0.0",
+  "description": "Find keywords in a MediaStream using IBM Watson Speech to Text",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.0",
+    "express-ws": "^4.0.0",
+    "watson-developer-cloud": "^4.0.1",
+    "websocket-stream": "^5.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0"
+  }
+}
