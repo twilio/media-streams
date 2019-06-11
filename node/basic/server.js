@@ -58,9 +58,9 @@ class MediaStream {
         this.latestSequence = data.sequenceNumber;
       }
       if (data.sequenceNumber == 1) {
-        console.log((new Date()) + ' Media WS: received media and metadata: '
+        console.log((new Date()) + ' Media WS: Received media and metadata: '
           + JSON.stringify(data));
-        console.log((new Date()) + ' Media WS:  ADDITIONAL MESSAGES FROM WEBSOCKET BEING SUPPRESED');
+        console.log((new Date()) + ' Media WS:  Additional messages from WebSocket are being suppressed.');
       }
 
     } else if (message.type === 'binary') {
@@ -69,7 +69,7 @@ class MediaStream {
   }
 
   close(){
-    console.log((new Date()) + ' Media WS: closed. Recieved a total of [' + this.latestSequence + '] messages');
+    console.log((new Date()) + ' Media WS: Closed. Received a total of [' + this.latestSequence + '] messages');
   }
 }
 

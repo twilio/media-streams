@@ -10,25 +10,14 @@ app = Flask(__name__)
 sockets = Sockets(app)
 
 @app.route('/twiml', methods=['POST'])
-def returnTwiml():
+def return_twiml():
     print("POST TwiML")
     return render_template('streams.xml')
 
-def onResponse(response):
-    if not response.results:
-        return
-
-    result = response.results[0]
-    if not result.alternatives:
-        return
-
-    transcription = result.alternatives[0].transcript
-    print("Transcription: " + transcription)
-
 @sockets.route('/')
-def transcript(ws):
-    print("WS connection opened")
-
+def echo(ws):
+    print("Media WS: Connection accepted")
+    count = 0
     while not ws.closed:
         message = ws.receive()
         if message is None:
@@ -37,9 +26,11 @@ def transcript(ws):
 
         data = json.loads(message)
         if data["sequenceNumber"] == "1":
-            print("Media WS: received media and metadata: " + str(data))
+            print("Media WS: Received media and metadata: " + str(data))
+            print("Media WS: Additional messages from WebSocket are being suppressed.")
+        count += 1
 
-    print("WS connection closed")
+    print("Media WS: Connection closed. Received a total of {} messages".format(count))
 
 if __name__ == '__main__':
     from gevent import pywsgi
