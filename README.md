@@ -15,3 +15,8 @@ Demos for consuming Twilio Programmable Media Streams
 ## Java
 
 * [Basic](java/basic/README.md)
+
+## Ruby/Rails
+
+* [Realtime Transcription - Ruby Service](ruby/standalone-ruby/README.md)
+* [Realtime Transcription - Rails Controller](ruby/rails-controller/README.md)
