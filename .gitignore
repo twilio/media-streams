@@ -1,2 +1,5 @@
 .vscode
 .DS_Store
+.*.bak
+.idea
+*.log
