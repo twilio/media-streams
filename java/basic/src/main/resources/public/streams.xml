@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Start>
+        <Stream url="wss:/<ngrok url>/voice"></Stream>
+    </Start>
+    <Say>Here we go!</Say>
+    <Pause length="40"/>
+</Response>
