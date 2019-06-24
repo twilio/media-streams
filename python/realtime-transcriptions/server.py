@@ -26,7 +26,7 @@ def return_twiml():
     print("POST TwiML")
     return render_template('streams.xml')
 
-def on_response(response):
+def on_transcription_response(response):
     if not response.results:
         return
 
@@ -40,7 +40,10 @@ def on_response(response):
 @sockets.route('/')
 def transcript(ws):
     print("WS connection opened")
-    bridge = SpeechClientBridge(streaming_config, on_response)
+    bridge = SpeechClientBridge(
+        streaming_config, 
+        on_transcription_response
+    )
 
     while not ws.closed:
         message = ws.receive()
