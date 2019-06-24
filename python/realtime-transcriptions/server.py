@@ -22,11 +22,11 @@ app = Flask(__name__)
 sockets = Sockets(app)
 
 @app.route('/twiml', methods=['POST'])
-def returnTwiml():
+def return_twiml():
     print("POST TwiML")
     return render_template('streams.xml')
 
-def onResponse(response):
+def on_response(response):
     if not response.results:
         return
 
@@ -40,7 +40,7 @@ def onResponse(response):
 @sockets.route('/')
 def transcript(ws):
     print("WS connection opened")
-    bridge = SpeechClientBridge(streaming_config, onResponse)
+    bridge = SpeechClientBridge(streaming_config, on_response)
 
     while not ws.closed:
         message = ws.receive()
@@ -49,11 +49,11 @@ def transcript(ws):
             break
 
         data = json.loads(message)
-        if data["sequenceNumber"] is "1":
+        if data["sequenceNumber"] == "1":
             print("Media WS: received media and metadata: " + str(data))
 
         buffer = base64.b64decode(data["payload"])
-        bridge.addRequest(buffer)
+        bridge.add_request(buffer)
 
     print("WS connection closed")
 
