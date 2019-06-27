@@ -6,7 +6,7 @@ const http = require('http');
 const HttpDispatcher = require('httpdispatcher');
 const WebSocketServer = require('websocket').server;
 
-const StreamMessage = require('./StreamMessage');
+const StreamMessageEmitter = require('./StreamMessageEmitter');
 
 const dispatcher = new HttpDispatcher();
 const wsserver = http.createServer(handleRequest);
@@ -46,20 +46,28 @@ dispatcher.onPost('/twiml', function(req,res) {
 });
 
 mediaWS.on('connect', function(connection) {
+  const messenger = new StreamMessageEmitter();
   log('WebSocket connection accepted');
-  let messageCount = 0;
-  connection.on('message', message => {
-    if (messageCount === 0) {
-      log('Received initial message: ');
-      const streamMessage = StreamMessage.from(message);
+  connection.on('message', messenger.push.bind(messenger)); 
+  
+  messenger.on('message', streamMessage => {
+    if (messenger.count == 1) {
+      log('Received initial message');
       log(`Message was: ${streamMessage}`);
-      log(`Audio payload size in bytes: ${streamMessage.payloadAsBuffer().byteLength}`);
       log('Suppressing remaining messages...');
     }
-    messageCount++;
   });
+
+  messenger.on('data', buffer => {
+    if (messenger.count == 1) {
+      log('Received initial data');
+      log(`Audio payload size in bytes: ${buffer.byteLength}`);
+      log('Suppressing remaining data...');
+    }
+  });
+  
   connection.on('close', () => {
-    log(`WebSocket closed. Received a total of ${messageCount} messages`);
+    log(`WebSocket closed. Received a total of ${messenger.count} messages`);
   });
 });
 
