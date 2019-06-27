@@ -52,7 +52,6 @@ mediaWS.on('connect', function(connection) {
     if (messageCount === 0) {
       log('Received initial message: ');
       const streamMessage = StreamMessage.from(message);
-      // .toString?
       log(`Message was: ${streamMessage}`);
       log(`Audio payload size in bytes: ${streamMessage.payloadAsBuffer().byteLength}`);
       log('Suppressing remaining messages...');

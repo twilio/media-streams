@@ -22,7 +22,7 @@ class StreamMessage {
             }
             throw new Error(`Unhandled message type: ${value.type}`);
         }
-    
+        throw new Error(`Unknown message type: ${typeof value}`);
     }
 
     payloadAsBuffer() {
