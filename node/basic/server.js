@@ -4,19 +4,14 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const HttpDispatcher = require('httpdispatcher');
-const WebSocketServer = require('websocket').server;
 
-const StreamMessageEmitter = require('./StreamMessageEmitter');
+
+const MediaStreamServer = require('./MediaStreamServer');
 
 const dispatcher = new HttpDispatcher();
-const wsserver = http.createServer(handleRequest);
+const httpServer = http.createServer(handleRequest);
 
 const HTTP_SERVER_PORT = 8080;
-
-var mediaWS = new WebSocketServer({
-  httpServer: wsserver,
-  autoAcceptConnections: true,
-});
 
 function log(message) {
   console.log(new Date(), message);
@@ -45,32 +40,28 @@ dispatcher.onPost('/twiml', function(req,res) {
   readStream.pipe(res);
 });
 
-mediaWS.on('connect', function(connection) {
-  const messenger = new StreamMessageEmitter();
-  log('WebSocket connection accepted');
-  connection.on('message', messenger.push.bind(messenger)); 
-  
-  messenger.on('message', streamMessage => {
-    if (messenger.count == 1) {
-      log('Received initial message');
-      log(`Message was: ${streamMessage}`);
-      log('Suppressing remaining messages...');
-    }
-  });
+const mss = new MediaStreamServer({server: httpServer});
 
-  messenger.on('data', buffer => {
-    if (messenger.count == 1) {
-      log('Received initial data');
-      log(`Audio payload size in bytes: ${buffer.byteLength}`);
-      log('Suppressing remaining data...');
-    }
-  });
-  
-  connection.on('close', () => {
-    log(`WebSocket closed. Received a total of ${messenger.count} messages`);
-  });
+mss.on('message', event => {
+  if (event.metadata.count == 1) {
+    log('Received initial message');
+    log(`Message was: ${event.streamMessage}`);
+    log('Suppressing remaining messages...');
+  }
 });
 
-wsserver.listen(HTTP_SERVER_PORT, function(){
-  console.log("Server listening on: http://localhost:%s", HTTP_SERVER_PORT);
+mss.on('data', event => {
+  if (event.metadata.count == 1) {
+    log('Received initial data');
+    log(`Audio payload size in bytes: ${event.buffer.byteLength}`);
+    log('Suppressing remaining data...');
+  }
+});
+  
+mss.on('close', event => {
+  log(`WebSocket closed. Received a total of ${event.metadata.count} messages`);
+});
+
+httpServer.listen(HTTP_SERVER_PORT, function(){
+  log("Server listening on: http://localhost:" + HTTP_SERVER_PORT);
 });
