@@ -29,20 +29,25 @@ class MediaStreamServer extends EventEmitter {
   }
 
   processMessage(connection, message) {
-    const metadata = this.connections[connection];
-    let count = metadata.messageCount || 0;
-    count++;
-    metadata.messageCount = count;
-    const streamMessage = StreamMessage.from(message);
-    this.emit("message", {
-      streamMessage,
-      metadata
-    });
-    if (this.listeners("data")) {
-      this.emit("data", {
-        buffer: streamMessage.payloadAsBuffer(),
+    try {
+      const metadata = this.connections[connection];
+      let count = metadata.messageCount || 0;
+      count++;
+      metadata.messageCount = count;
+      const streamMessage = StreamMessage.from(message);
+      this.emit("message", {
+        streamMessage,
         metadata
       });
+      if (this.listeners("data")) {
+        this.emit("data", {
+          buffer: streamMessage.payloadAsBuffer(),
+          metadata
+        });
+      }
+  
+    } catch(e) {
+      console.error(e);
     }
   }
   handleClose(connection) {

@@ -43,7 +43,7 @@ dispatcher.onPost('/twiml', function(req,res) {
 const mss = new MediaStreamServer({server: httpServer});
 
 mss.on('message', event => {
-  if (event.metadata.count == 1) {
+  if (event.metadata.messageCount == 1) {
     log('Received initial message');
     log(`Message was: ${event.streamMessage}`);
     log('Suppressing remaining messages...');
@@ -51,7 +51,7 @@ mss.on('message', event => {
 });
 
 mss.on('data', event => {
-  if (event.metadata.count == 1) {
+  if (event.metadata.messageCount == 1) {
     log('Received initial data');
     log(`Audio payload size in bytes: ${event.buffer.byteLength}`);
     log('Suppressing remaining data...');
@@ -59,7 +59,7 @@ mss.on('data', event => {
 });
   
 mss.on('close', event => {
-  log(`WebSocket closed. Received a total of ${event.metadata.count} messages`);
+  log(`WebSocket closed. Received a total of ${event.metadata.messageCount} messages`);
 });
 
 httpServer.listen(HTTP_SERVER_PORT, function(){
