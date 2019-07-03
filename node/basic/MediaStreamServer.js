@@ -2,37 +2,35 @@ const EventEmitter = require("events");
 const WebSocketServer = require("websocket").server;
 const StreamMessage = require("./StreamMessage");
 
-function log(message) {
-  console.log(new Date(), "MediaStreamServer", message);
-}
-
 class MediaStreamServer extends EventEmitter {
   constructor(options) {
     super();
     this.connections = {};
+    // TODO: Accept port or server
     this.websocketServer = new WebSocketServer({
       httpServer: options.server,
       autoAcceptConnections: true
     });
     this.websocketServer.on("connect", connection => {
-      log("Websocket Connected");
-      this.connections[connection] = {};
+      // This is closed over for each connection
+      const metadata = {};
       connection.on("message", message =>
-        this.processMessage(connection, message)
+        this.processMessage(message, metadata)
       );
-      connection.on("close", () => this.handleClose(connection));
+      connection.on("close", () => this.handleClose(metadata));
     });
   }
 
-  processMessage(connection, message) {
+  processMessage(message, metadata) {
     try {
-      const metadata = this.connections[connection];
       let count = metadata.messageCount || 0;
       count++;
       metadata.messageCount = count;
+      // This is a raw websocket message
       this.emit("rawMessage", message);
       const streamMessage = StreamMessage.from(message);
       const sequenceNumber = streamMessage.obj.sequenceNumber;
+      // This is a utf8 string
       this.emit("raw", streamMessage.toString());
       let event = streamMessage.obj.event;
       if (event) {
@@ -64,7 +62,7 @@ class MediaStreamServer extends EventEmitter {
           const keys = ["mediaFormat", "accountSid", "streamSid", "callSid"];
           keys.forEach(key => (metadata[key] = streamMessage.obj[key]));
           // Tracks is inbound only
-          metadata.tracks = ['inbound'];
+          metadata.tracks = ["inbound"];
           metadata.customParameters = {};
           // Cache as it is always the same
           metadata.generated = true;
@@ -101,10 +99,9 @@ class MediaStreamServer extends EventEmitter {
       console.error(e);
     }
   }
-  handleClose(connection) {
-    const metadata = this.connections[connection];
+
+  handleClose(metadata) {
     this.emit("close", { metadata });
-    delete this.connections[connection];
   }
 }
 
