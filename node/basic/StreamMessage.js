@@ -8,21 +8,28 @@ class StreamMessage {
   }
 
   toString() {
-    return JSON.stringify(this.obj);
+    return this.rawString || JSON.stringify(this.obj);
   }
 
   static from(value) {
+    let msg = undefined;
     if (typeof value === "string") {
-      return fromJSON(value);
+      msg = fromJSON(value);
+      msg.rawString = value;
     }
     // 'websocket' message
-    if (value.type && value.type) {
+    if (value.type) {
       if (value.type === "utf8") {
-        return fromJSON(value.utf8Data);
+        msg = fromJSON(value.utf8Data);
+        msg.rawString = value.utf8Data;
+      } else {
+        throw new Error(`Unhandled message type: ${value.type}`);
       }
-      throw new Error(`Unhandled message type: ${value.type}`);
     }
-    throw new Error(`Unknown message type: ${typeof value}`);
+    if (msg === undefined) {
+      throw new Error(`Unknown message type: ${typeof value}`);
+    }
+    return msg;
   }
 
   payloadAsBuffer() {
