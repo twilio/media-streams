@@ -57,10 +57,15 @@ class MediaStreamServer extends EventEmitter {
         // v0.1.0 doesn't include events
         event = "media";
         if (!metadata.generated) {
+          // Generate "connected" keys
           metadata.version = "0.1.0";
           metadata.protocol = "Call";
+          // Generate "start" keys
           const keys = ["mediaFormat", "accountSid", "streamSid", "callSid"];
           keys.forEach(key => (metadata[key] = streamMessage.obj[key]));
+          // Tracks is inbound only
+          metadata.tracks = ['inbound'];
+          metadata.customParameters = {};
           // Cache as it is always the same
           metadata.generated = true;
         }
@@ -68,7 +73,10 @@ class MediaStreamServer extends EventEmitter {
       if (event === "media") {
         let media;
         if (metadata.generated) {
+          // Map media to look like v0.2.0
           media = {
+            track: "inbound",
+            chunk: metadata.messageCount,
             timestamp: streamMessage.obj.timestamp,
             payload: streamMessage.obj.payload
           };
@@ -80,6 +88,7 @@ class MediaStreamServer extends EventEmitter {
           media,
           metadata
         });
+        // Only convert to Buffer if requested
         if (this.listeners("mediaPayload")) {
           this.emit("mediaPayload", {
             sequenceNumber,
