@@ -33,7 +33,7 @@ class StreamMessage {
   }
 
   payloadAsBuffer() {
-    return Buffer.from(this.obj.payload, "base64");
+    return Buffer.from(this.obj.payload || this.obj.media.payload, "base64");
   }
 }
 

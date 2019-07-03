@@ -43,7 +43,7 @@ class MediaStreamServer extends EventEmitter {
           });
         } else if (event === "start") {
           Object.keys(streamMessage.obj.start).forEach(key => {
-            metadata[key] = streamMessage.obj[key];
+            metadata[key] = streamMessage.obj.start[key];
           });
           this.emit("start", {
             sequenceNumber,
@@ -74,7 +74,7 @@ class MediaStreamServer extends EventEmitter {
           // Map media to look like v0.2.0
           media = {
             track: "inbound",
-            chunk: metadata.messageCount,
+            chunk: metadata.messageCount + "",
             timestamp: streamMessage.obj.timestamp,
             payload: streamMessage.obj.payload
           };
