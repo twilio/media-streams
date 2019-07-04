@@ -2,19 +2,20 @@
 
 const fs = require('fs');
 const path = require('path');
-var http = require('http');
-var HttpDispatcher = require('httpdispatcher');
-var WebSocketServer = require('websocket').server;
+const http = require('http');
+const HttpDispatcher = require('httpdispatcher');
 
-var dispatcher = new HttpDispatcher();
-var wsserver = http.createServer(handleRequest);
+
+const MediaStreamServer = require('./MediaStreamServer');
+
+const dispatcher = new HttpDispatcher();
+const httpServer = http.createServer(handleRequest);
 
 const HTTP_SERVER_PORT = 8080;
 
-var mediaws = new WebSocketServer({
-  httpServer: wsserver,
-  autoAcceptConnections: true,
-});
+function log(message, ...args) {
+  console.log(new Date(), message, ...args);
+}
 
 function handleRequest(request, response){
   try {
@@ -25,7 +26,7 @@ function handleRequest(request, response){
 }
 
 dispatcher.onPost('/twiml', function(req,res) {
-  console.log((new Date()) + 'POST TwiML');
+  log('POST TwiML');
 
   var filePath = path.join(__dirname+'/templates', 'streams.xml');
   var stat = fs.statSync(filePath);
@@ -39,40 +40,51 @@ dispatcher.onPost('/twiml', function(req,res) {
   readStream.pipe(res);
 });
 
-mediaws.on('connect', function(connection) {
-  console.log((new Date()) + 'Media WS: Connection accepted');
-  new MediaStream(connection);
-});
+const mss = new MediaStreamServer({server: httpServer});
 
-class MediaStream {
-  constructor(connection) {
-    connection.on('message', this.processMessage.bind(this));
-    connection.on('close', this.close.bind(this));
-    this.latestSequence = 0;
-  }
+const SEQUENCE_LIMIT = 3;
 
-  processMessage(message){
-    if (message.type === 'utf8') {
-      var data = JSON.parse(message.utf8Data);
-      if (data.sequenceNumber) {
-        this.latestSequence = data.sequenceNumber;
-      }
-      if (data.sequenceNumber == 1) {
-        console.log((new Date()) + ' Media WS: Received media and metadata: '
-          + JSON.stringify(data));
-        console.log((new Date()) + ' Media WS:  Additional messages from WebSocket are being suppressed.');
-      }
-
-    } else if (message.type === 'binary') {
-      console.log((new Date()) + ' Media WS: binary message received (not supported)');
+mss.on('message', event => {
+  if (event.sequenceNumber <= SEQUENCE_LIMIT) {
+    log(`Received "message" #${event.sequenceNumber}`);
+    log("Message was:", event.message);
+    log("Metadata was:", event.metadata);
+    if (event.sequenceNumber == SEQUENCE_LIMIT) {
+      log('Remaining messages suppressed');
     }
   }
+});
 
-  close(){
-    console.log((new Date()) + ' Media WS: Closed. Received a total of [' + this.latestSequence + '] messages');
+mss.on('media', event => {
+  if (event.sequenceNumber <= SEQUENCE_LIMIT) {
+    log('Received "media" data');
+    log("Media was:", event.media);
+    log("Metadata was:", event.metadata);
+    if (event.sequenceNumber == SEQUENCE_LIMIT) {
+      log('Remaining messages suppressed');
+    }
   }
-}
+});
 
-wsserver.listen(HTTP_SERVER_PORT, function(){
-  console.log("Server listening on: http://localhost:%s", HTTP_SERVER_PORT);
+mss.on('mediaPayload', event => {
+  if (event.sequenceNumber <= SEQUENCE_LIMIT) {
+    log('Received "mediaPayload" data');
+    log(`Audio payload size in bytes: ${event.buffer.byteLength}`);
+    log("Metadata was:", event.metadata);
+    if (event.sequenceNumber == SEQUENCE_LIMIT) {
+      log('Remaining messages suppressed');
+    }
+  }
+});
+
+mss.once('raw', message => {
+  log('Message from "raw" one time only', message);
+});
+  
+mss.on('close', event => {
+  log(`WebSocket closed. Received a total of ${event.metadata.messageCount} messages`);
+});
+
+httpServer.listen(HTTP_SERVER_PORT, function(){
+  log("Server listening on: http://localhost:" + HTTP_SERVER_PORT);
 });
