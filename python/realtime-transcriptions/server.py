@@ -52,12 +52,17 @@ def transcript(ws):
             break
 
         data = json.loads(message)
-        if data["sequenceNumber"] == "1":
-            print("Media WS: received media and metadata: " + str(data))
-
-        buffer = base64.b64decode(data["payload"])
-        bridge.add_request(buffer)
-
+        if data["event"] in ("connected", "start"):
+            print(f"Media WS: Received event '{data['event']}': {message}")
+            continue
+        if data["event"] == "media":
+            media = data["media"]
+            chunk = base64.b64decode(media["payload"])
+            bridge.add_request(chunk)
+        if data["event"] == "stop":
+            print(f"Media WS: Received event 'stop': {message}")
+            print("Stopping...")
+            break
     print("WS connection closed")
 
 if __name__ == '__main__':
