@@ -16,16 +16,20 @@ var mediaws = new WebSocketServer({
   autoAcceptConnections: true,
 });
 
+function log(message, ...args) {
+  console.log(new Date(), message, ...args);
+}
+
 function handleRequest(request, response){
   try {
     dispatcher.dispatch(request, response);
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
 dispatcher.onPost('/twiml', function(req,res) {
-  console.log((new Date()) + 'POST TwiML');
+  log('POST TwiML');
 
   var filePath = path.join(__dirname+'/templates', 'streams.xml');
   var stat = fs.statSync(filePath);
@@ -40,7 +44,7 @@ dispatcher.onPost('/twiml', function(req,res) {
 });
 
 mediaws.on('connect', function(connection) {
-  console.log((new Date()) + 'Media WS: Connection accepted');
+  log('Media WS: Connection accepted');
   new MediaStream(connection);
 });
 
@@ -48,28 +52,38 @@ class MediaStream {
   constructor(connection) {
     connection.on('message', this.processMessage.bind(this));
     connection.on('close', this.close.bind(this));
-    this.latestSequence = 0;
+    this.hasSeenMedia = false;
+    this.messageCount = 0;
   }
 
   processMessage(message){
     if (message.type === 'utf8') {
       var data = JSON.parse(message.utf8Data);
-      if (data.sequenceNumber) {
-        this.latestSequence = data.sequenceNumber;
+      if (data.event === "connected") {
+        log('Media WS: Connected event received: ', data);
       }
-      if (data.sequenceNumber == 1) {
-        console.log((new Date()) + ' Media WS: Received media and metadata: '
-          + JSON.stringify(data));
-        console.log((new Date()) + ' Media WS:  Additional messages from WebSocket are being suppressed.');
+      if (data.event === "start") {
+        log('Media WS: Start event received: ', data);
       }
-
+      if (data.event === "media") {
+        if (!this.hasSeenMedia) {
+          log('Media WS: Media event received: ', data);
+          log('Media WS: Suppressing additional messages...');
+          this.hasSeenMedia = true;
+        }
+      }
+      if (data.event === "close") {
+        log('Media WS: Close event received: ', data);
+        this.close();
+      }
+      this.messageCount++;
     } else if (message.type === 'binary') {
-      console.log((new Date()) + ' Media WS: binary message received (not supported)');
+      log('Media WS: binary message received (not supported)');
     }
   }
 
   close(){
-    console.log((new Date()) + ' Media WS: Closed. Received a total of [' + this.latestSequence + '] messages');
+    log('Media WS: Closed. Received a total of [' + this.messageCount + '] messages');
   }
 }
 
