@@ -74,7 +74,11 @@ public class StreamingRecognizeService {
     public void send(String message) {
         try {
             JSONObject jo = new JSONObject(message);
-            String payload = jo.getString("payload");
+            if (!jo.getString("event").equals("media")) {
+                return;
+            }
+
+            String payload = jo.getJSONObject("media").getString("payload");
             byte[] data = Base64.getDecoder().decode(payload);
             StreamingRecognizeRequest request =
                     StreamingRecognizeRequest.newBuilder()
