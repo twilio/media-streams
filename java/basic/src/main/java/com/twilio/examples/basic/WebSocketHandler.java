@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketHandler {
     final static Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
     final static Map<Session, Integer> messageCounts = new ConcurrentHashMap<>();
+    final static Map<Session, Boolean> hasSessionSeenMedia = new ConcurrentHashMap<>();
 
     @OnWebSocketConnect
     public void connected(Session session) {
@@ -31,10 +32,21 @@ public class WebSocketHandler {
     public void message(Session session, String message) throws IOException {
         try {
             JSONObject jo = new JSONObject(message);
-            String sequenceNumber = jo.getString("sequenceNumber");
-            if (sequenceNumber.equals("1")) {
-                logger.info("Media WS: received media and metadata: {}", message);
-                logger.warn("Media WS: Additional messages from WebSocket are now being suppressed");
+            String event = jo.getString("event");
+            Boolean hasSeenMedia = hasSessionSeenMedia.getOrDefault(session, false);
+            if (event.equals("connected")) {
+                logger.info("Media WS: Connected message received: {}", message);
+            }
+            if (event.equals("start")) {
+                logger.info("Media WS: Start message received: {}", message);
+            }
+            if (event.equals("media")) {
+                if (!hasSeenMedia) {
+                    logger.info("Media WS: Media message received: {}", message);
+                    logger.warn("Media WS: Additional messages from WebSocket are now being suppressed");
+                    hasSessionSeenMedia.put(session, true);
+                }
+
             }
             messageCounts.merge(session, 1, Integer::sum);
 
