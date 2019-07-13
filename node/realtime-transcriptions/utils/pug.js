@@ -12,14 +12,15 @@ const xmlToFile = (xmlPath, data) => {
 
   const writeStream = fs.createWriteStream(xmlPath, overwrite);
 
+  writeStream.on('finish', function() {
+    console.log('Writing finished');
+  });
   writeStream.write(data, function(err) {
     if (err) {
       console.log(err);
     }
-  });
-  writeStream.on('finish', function() {
-    console.log('Writing finished');
+    writeStream.end();
   });
 };
 
-module.exports = { compileFunc, xmlToFile };
+module.exports = { pug: { xmlToFile, compileFunc } };

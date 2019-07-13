@@ -1,6 +1,6 @@
-const { compileFunc, xmlToFile } = require('./pug.js');
-
+const { pug } = require('./pug.js');
+const { ngrok } = require('./ngrok.js');
 module.exports = {
-  compileFunc,
-  xmlToFile,
+  pug,
+  ngrok,
 };
