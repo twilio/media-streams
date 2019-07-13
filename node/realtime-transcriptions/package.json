@@ -17,14 +17,17 @@
   },
   "homepage": "",
   "dependencies": {
+    "@google-cloud/speech": "^1.5.0",
     "dotenv": "^4.0.0",
     "httpdispatcher": "^2.1.2",
-    "websocket": "^1.0.28",
-    "@google-cloud/speech": "^1.5.0"
+    "path": "^0.12.7",
+    "performance-now": "^2.1.0",
+    "websocket": "^1.0.28"
   },
   "devDependencies": {
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "pug": "^2.0.4"
   }
 }

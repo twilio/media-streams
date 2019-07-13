@@ -1,12 +1,22 @@
 'use strict';
 require('dotenv').load();
 
-const fs = require('fs');
-const path = require('path');
 var http = require('http');
 var HttpDispatcher = require('httpdispatcher');
 var WebSocketServer = require('websocket').server;
 const Speech = require('@google-cloud/speech');
+const pugUtils = require('./utils');
+
+const path = require('path');
+
+const options = {
+  url: 'http://mario.mui.me',
+};
+const filePath = path.resolve(__dirname, './templates/streamshb.pug');
+pugUtils.compileFunc(filePath).then(pugToXMLFunc => {
+  const xmlPath = path.resolve(__dirname, './templates/streams.xml');
+  pugUtils.xmlToFile(xmlPath, pugToXMLFunc(options));
+});
 
 var dispatcher = new HttpDispatcher();
 var wsserver = http.createServer(handleRequest);

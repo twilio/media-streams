@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Start>
-    <Stream url="wss://<ngrok url>/"></Stream>
+    <Stream url="http://mario.mui.me"></Stream>
   </Start>
-  <Pause length="40"/>
+  <Pause length="40"></Pause>
 </Response>
