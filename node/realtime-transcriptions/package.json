@@ -21,5 +21,9 @@
     "httpdispatcher": "^2.1.2",
     "websocket": "^1.0.28",
     "@google-cloud/speech": "^1.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.0.0"
   }
 }
