@@ -1,10 +1,19 @@
-# Basic Demo
+# Realtime Transcriptions Demo
 
-This is a basic server application that consumes audio from Twilio Programmable Media Streams.
-
-It's a good starting point to develop your own application logic.
+This demo is a server application consuming audio from Twilio Programmable Media Streams and using Google Cloud Speech to perform real-time transcriptions.
 
 ## App sever setup
+
+### Enable Google Cloud Speech API
+
+https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
+
+* Select a Project
+* Enable or Manage
+* Choose Credentials
+  * Create a new Credential or make sure you have the JSON
+  * Copy JSON and save as `google_creds.json` in the root of this project
+
 
 ### Installation
 
@@ -12,7 +21,10 @@ It's a good starting point to develop your own application logic.
 
 #### Running the server
 
-`mvn compile && mvn exec:java`
+`mvn compile && GOOGLE_APPLICATION_CREDENTIALS=./google_creds.json mvn exec:java`
+
+#### Useful pointers
+https://cloud.google.com/speech-to-text/docs/streaming-recognize#speech-streaming-recognize-java
 
 ## Setup
 

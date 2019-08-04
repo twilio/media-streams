@@ -23,7 +23,9 @@ app.ws("/media", (ws, req) => {
   const mediaDecoderStream = new Transform({
     transform: (chunk, encoding, callback) => {
       const msg = JSON.parse(chunk.toString('utf8'));
-      return callback(null, Buffer.from(msg.payload, 'base64'));
+      // Only process media messages
+      if (msg.event !== "media") return callback();
+      return callback(null, Buffer.from(msg.media.payload, 'base64'));
     }
   });
   // Set up a connected websocket stream to IBM Cloud

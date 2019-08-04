@@ -31,6 +31,8 @@ public class WebSocketHandler {
     private String callSid;
     private AudioFormat format = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 160, 50, true);
 
+    final static Map<Session, Integer> messageCounts = new ConcurrentHashMap<>();
+    final static Map<Session, Boolean> hasSessionSeenMedia = new ConcurrentHashMap<>();
 
     @OnWebSocketConnect
     public void connected(Session session) {
@@ -46,7 +48,23 @@ public class WebSocketHandler {
                 ulawFile = new File(callSid + ".ulaw");
                 ulawFile.createNewFile();
                 uLawFOS = new FileOutputStream(ulawFile);
+            String event = jo.getString("event");
+            Boolean hasSeenMedia = hasSessionSeenMedia.getOrDefault(session, false);
+            if (event.equals("connected")) {
+                logger.info("Media WS: Connected message received: {}", message);
             }
+            if (event.equals("start")) {
+                logger.info("Media WS: Start message received: {}", message);
+            }
+            if (event.equals("media")) {
+                if (!hasSeenMedia) {
+                    logger.info("Media WS: Media message received: {}", message);
+                    logger.warn("Media WS: Additional messages from WebSocket are now being suppressed");
+                    hasSessionSeenMedia.put(session, true);
+                }
+
+            }
+            //OLD
             String payload = jo.getString("payload");
             byte[] decodedBytes = Base64.getDecoder().decode(payload);
             uLawFOS.write(decodedBytes);

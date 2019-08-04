@@ -20,16 +20,20 @@ var mediaws = new WebSocketServer({
   autoAcceptConnections: true,
 });
 
+function log(message, ...args) {
+  console.log(new Date(), message, ...args);
+}
+
 function handleRequest(request, response){
   try {
     dispatcher.dispatch(request, response);
   } catch(err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
 dispatcher.onPost('/twiml', function(req,res) {
-  console.log((new Date()) + 'POST TwiML');
+  log('POST TwiML');
 
   var filePath = path.join(__dirname+'/templates', 'streams.xml');
   var stat = fs.statSync(filePath);
@@ -44,7 +48,7 @@ dispatcher.onPost('/twiml', function(req,res) {
 });
 
 mediaws.on('connect', function(connection) {
-  console.log((new Date()) + 'Media WS: Connection accepted');
+  log('Media WS: Connection accepted');
   new TranscriptionStream(connection);
 });
 
@@ -60,19 +64,18 @@ class TranscriptionStream {
   processMessage(message){
     if (message.type === 'utf8') {
       var data = JSON.parse(message.utf8Data);
-      if (data.sequenceNumber == 1) {
-        console.log((new Date()) + 'Media WS: received media and metadata: '
-          + JSON.stringify(data));
+      // Only worry about media messages
+      if (data.event !== "media") {
+        return;
       }
-
-      this.getStream().write(data.payload);
+      this.getStream().write(data.media.payload);
     } else if (message.type === 'binary') {
-      console.log((new Date()) + 'Media WS: binary message received (not supported)');
+      log('Media WS: binary message received (not supported)');
     }
   }
 
   close(){
-    console.log((new Date()) + 'Media WS: closed');
+    log('Media WS: closed');
 
     if (this.stream){
       this.stream.destroy();
