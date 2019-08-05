@@ -1,6 +1,6 @@
 # Basic Demo
 
-This is a basic server application that consumes audio from Twilio Programmable Media Streams.
+This is a basic server application that consumes audio from Twilio Media Streams.
 
 It's a good starting point to develop your own application logic.
 

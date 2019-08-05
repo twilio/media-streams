@@ -1,6 +1,6 @@
 # Realtime Transcriptions Demo
 
-This demo is a server application consuming audio from Twilio Programmable Media Streams and using Google Cloud Speech to perform real-time transcriptions.
+This demo is a server application consuming audio from Twilio Media Streams and using Google Cloud Speech to perform real-time transcriptions.
 
 ## App sever setup
 
