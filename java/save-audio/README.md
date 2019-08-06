@@ -1,8 +1,6 @@
-# Basic Demo
+# Save Audio Demo
 
-This is a basic server application that consumes audio from Twilio Programmable Media Streams.
-
-It's a good starting point to develop your own application logic.
+This is an application that consumes audio from Twilio Media Streams and saves it directly to a wav file.
 
 ## App sever setup
 
