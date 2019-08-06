@@ -1,6 +1,6 @@
 # Keyword Detection Demo
 
-This demo is a server application consuming audio from Twilio Programmable Media Streams and using IBM Watson Cloud Text to Speech to perform realtime transcriptions and keyword detection.
+This demo is a server application consuming audio from Twilio Media Streams and using IBM Watson Cloud Text to Speech to perform realtime transcriptions and keyword detection.
 
 ## App sever setup
 

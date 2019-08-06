@@ -1,5 +1,5 @@
 # Media Streams Demos
-Demos for consuming Twilio Programmable Media Streams
+Demos for consuming Twilio  Media Streams
 
 ## Python
 
