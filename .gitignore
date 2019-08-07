@@ -3,3 +3,7 @@
 .*.bak
 .idea
 *.log
+
+.prettierrc
+.eslintrc.json
+google_creds.json

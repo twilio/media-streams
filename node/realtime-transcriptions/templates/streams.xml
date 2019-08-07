@@ -1,7 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Start>
-    <Stream url="wss://<ngrok url>/"></Stream>
-  </Start>
-  <Pause length="40"/>
-</Response>
+<?xml version="1.0" encoding="UTF-8"?><Response><Start><Stream url="wss://05916bcb.ngrok.io"></Stream></Start><Pause length="40"></Pause></Response>
