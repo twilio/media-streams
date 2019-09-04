@@ -3,3 +3,6 @@
 .*.bak
 .idea
 *.log
+
+.prettierrc
+.eslintrc.json
