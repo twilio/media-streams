@@ -63,6 +63,8 @@ def transcript(ws):
             print(f"Media WS: Received event 'stop': {message}")
             print("Stopping...")
             break
+
+    bridge.terminate()
     print("WS connection closed")
 
 if __name__ == '__main__':
