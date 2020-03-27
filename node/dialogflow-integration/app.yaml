@@ -1,0 +1,7 @@
+runtime: nodejs
+instance_class: B4
+manual_scaling:
+  instances: 1
+env: flex
+network:
+  session_affinity: true
