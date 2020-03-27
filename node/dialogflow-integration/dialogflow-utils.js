@@ -136,13 +136,16 @@ class DialogflowService extends EventEmitter {
         const msg = JSON.parse(data.toString("utf8"));
         if (msg.event === "start") {
           console.log(`Captured call ${msg.start.callSid}`);
-          this.emit('callStarted', msg.start.callSid);
+          this.emit("callStarted", msg.start.callSid);
         }
       });
       responseStream.on("data", data => {
-        if (data.recognitionResult) {
+        if (
+          data.recognitionResult &&
+          data.recognitionResult.transcript &&
+          data.recognitionResult.transcript.length > 0
+        ) {
           this.emit("interrupted", data.recognitionResult.transcript);
-          this.isInterrupted = true;
         }
         if (
           data.queryResult &&
