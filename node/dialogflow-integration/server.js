@@ -12,11 +12,27 @@ const PORT = process.env.PORT || 3000;
 // Global callSid to Audio
 const responseAudio = {};
 
+//Dump the environment variables
+// console.log(`GAE_INSTANCE=${process.env.GAE_INSTANCE}`);
+// console.log(`GAE_MEMORY_MB=${process.env.GAE_MEMORY_MB}`);
+// console.log(`GAE_SERVICE=${process.env.GAE_SERVICE}`);
+// console.log(`GAE_VERSION=${process.env.GAE_VERSION}`);
+// console.log(`REGION_ID=${process.env.REGION_ID}`);
+// console.log(`GOOGLE_CLOUD_PROJECT=${process.env.GOOGLE_CLOUD_PROJECT}`);
+// console.log(`NODE_ENV=${process.env.NODE_ENV}`);
+// console.log(`PORT=${process.env.PORT}`);
+
+//app instance name
+const APP_URL = "http://" + process.env.GAE_INSTANCE + "." + process.env.GAE_VERSION + "." +  process.env.GOOGLE_CLOUD_PROJECT + ".appspot.com";
+
+console.log(`APP_URL=${APP_URL}`);
+
 const app = express();
 // extend express app with app.ws()
 expressWebSocket(app, null, {
   perMessageDeflate: false
 });
+
 app.engine("hbs", hbs());
 app.set("view engine", "hbs");
 
@@ -25,6 +41,7 @@ app.use(express.static("public"));
 app.get("/", (request, response) => {
   response.render("home", { layout: false });
 });
+
 
 // TODO: This needs to be
 app.get("/audio/:callSid/response.mp3", (request, response) => {
@@ -39,6 +56,21 @@ app.post("/twiml", (request, response) => {
   response.setHeader("Content-Type", "application/xml");
   response.render("twiml", { host: request.hostname, layout: false });
 });
+
+// TODO: This needs to be
+app.get("/liveness_check", (request, response) => {
+  response.set("content-type", "text/plain");
+  response.write("200 Ok");
+  response.end();
+});
+
+// TODO: This needs to be
+app.get("/readiness_check", (request, response) => {
+  response.set("content-type", "text/plain");
+  response.write("200 Ok");
+  response.end();
+})
+
 
 app.ws("/media", (ws, req) => {
   const client = new Twilio();
@@ -80,7 +112,7 @@ app.ws("/media", (ws, req) => {
   dialogflowService.on("audio", audio => {
     responseAudio[callSid] = audio;
     callUpdater(callSid, response => {
-      response.play(`https://${req.hostname}/audio/${callSid}/response.mp3`);
+      response.play(`${APP_URL}/audio/${callSid}/response.mp3`);
       if (dialogflowService.isDone) {
         const url = process.env.END_OF_INTERACTION_URL;
         if (url) {
@@ -101,6 +133,8 @@ app.ws("/media", (ws, req) => {
   });
 
   dialogflowService.on("interrupted", transcript => {
+    console.log(`interrupted with ${transcript}`);
+    
     if (!dialogflowService.isInterrupted) {
       callUpdater(callSid, response => {
         response.pause({ length: 120 });

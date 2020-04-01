@@ -1,7 +1,24 @@
 runtime: nodejs
-instance_class: B4
+#instance_class: B4
+resources:
+  cpu: 2
+  memory_gb: 2.3
 manual_scaling:
-  instances: 1
+  instances: 2
 env: flex
 network:
   session_affinity: true
+  instance_tag: twilio-ms-app
+liveness_check:
+  path: "/liveness_check"
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2  
+readiness_check:
+  path: "/readiness_check"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+  app_start_timeout_sec: 300
