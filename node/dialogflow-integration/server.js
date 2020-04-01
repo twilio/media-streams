@@ -23,9 +23,7 @@ const responseAudio = {};
 // console.log(`PORT=${process.env.PORT}`);
 
 //app instance name
-const APP_URL = "http://" + process.env.GAE_INSTANCE + "." + process.env.GAE_VERSION + "." +  process.env.GOOGLE_CLOUD_PROJECT + ".appspot.com";
-
-console.log(`APP_URL=${APP_URL}`);
+const GAE_URL = "http://" + process.env.GAE_INSTANCE + "." + process.env.GAE_VERSION + "." +  process.env.GOOGLE_CLOUD_PROJECT + ".appspot.com";
 
 const app = express();
 // extend express app with app.ws()
@@ -112,7 +110,14 @@ app.ws("/media", (ws, req) => {
   dialogflowService.on("audio", audio => {
     responseAudio[callSid] = audio;
     callUpdater(callSid, response => {
-      response.play(`${APP_URL}/audio/${callSid}/response.mp3`);
+
+      if (process.env.GAE_INSTANCE) {
+        response.play(`${GAE_URL}/audio/${callSid}/response.mp3`);  
+      } else {
+        response.play(`https://${req.hostname}/audio/${callSid}/response.mp3`);
+      }
+
+      
       if (dialogflowService.isDone) {
         const url = process.env.END_OF_INTERACTION_URL;
         if (url) {
