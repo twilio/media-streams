@@ -12,16 +12,6 @@ const PORT = process.env.PORT || 3000;
 // Global callSid to Audio
 const responseAudio = {};
 
-//Dump the environment variables
-// console.log(`GAE_INSTANCE=${process.env.GAE_INSTANCE}`);
-// console.log(`GAE_MEMORY_MB=${process.env.GAE_MEMORY_MB}`);
-// console.log(`GAE_SERVICE=${process.env.GAE_SERVICE}`);
-// console.log(`GAE_VERSION=${process.env.GAE_VERSION}`);
-// console.log(`REGION_ID=${process.env.REGION_ID}`);
-// console.log(`GOOGLE_CLOUD_PROJECT=${process.env.GOOGLE_CLOUD_PROJECT}`);
-// console.log(`NODE_ENV=${process.env.NODE_ENV}`);
-// console.log(`PORT=${process.env.PORT}`);
-
 //app instance name
 const GAE_URL = "http://" + process.env.GAE_INSTANCE + "." + process.env.GAE_VERSION + "." +  process.env.GOOGLE_CLOUD_PROJECT + ".appspot.com";
 
@@ -40,8 +30,6 @@ app.get("/", (request, response) => {
   response.render("home", { layout: false });
 });
 
-
-// TODO: This needs to be
 app.get("/audio/:callSid/response.mp3", (request, response) => {
   response.set("content-type", "audio/mp3");
   response.set("accept-ranges", "bytes");
@@ -55,20 +43,18 @@ app.post("/twiml", (request, response) => {
   response.render("twiml", { host: request.hostname, layout: false });
 });
 
-// TODO: This needs to be
+
 app.get("/liveness_check", (request, response) => {
   response.set("content-type", "text/plain");
   response.write("200 Ok");
   response.end();
 });
 
-// TODO: This needs to be
 app.get("/readiness_check", (request, response) => {
   response.set("content-type", "text/plain");
   response.write("200 Ok");
   response.end();
-})
-
+});
 
 app.ws("/media", (ws, req) => {
   const client = new Twilio();
@@ -110,7 +96,7 @@ app.ws("/media", (ws, req) => {
   dialogflowService.on("audio", audio => {
     responseAudio[callSid] = audio;
     callUpdater(callSid, response => {
-
+      // Google App Engine specifics
       if (process.env.GAE_INSTANCE) {
         response.play(`${GAE_URL}/audio/${callSid}/response.mp3`);  
       } else {
