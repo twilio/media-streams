@@ -57,7 +57,16 @@ app.get("/readiness_check", (request, response) => {
 });
 
 app.ws("/media", (ws, req) => {
-  const client = new Twilio();
+  try {
+    const client = new Twilio();
+  } catch(err) {
+    if (process.env.TWILIO_ACCOUNT_SID === undefined) {
+      console.error('Ensure that you have set your environment variable TWILIO_ACCOUNT_SID. This can be copied from https://twilio.com/console');
+      console.log('Exiting');
+      return;
+    }
+    console.error(err);
+  }
   // This will get populated on callStarted
   let callSid;
   // MediaStream coming from Twilio
