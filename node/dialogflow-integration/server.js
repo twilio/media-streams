@@ -12,9 +12,6 @@ const PORT = process.env.PORT || 3000;
 // Global callSid to Audio
 const responseAudio = {};
 
-//app instance name
-const GAE_URL = "http://" + process.env.GAE_INSTANCE + "." + process.env.GAE_VERSION + "." +  process.env.GOOGLE_CLOUD_PROJECT + ".appspot.com";
-
 const app = express();
 // extend express app with app.ws()
 expressWebSocket(app, null, {
@@ -37,7 +34,7 @@ app.get("/audio/:callSid/response.mp3", (request, response) => {
   if (bytes) {
     response.write(bytes);
   } else {
-    response.write([]);
+    response.write("");
     console.error(`Audio not found for ${request.params.callSid}. Audio exists for the following calls ${Object.keys(responseAudio)}`);
   }
   response.end();
@@ -47,19 +44,6 @@ app.get("/audio/:callSid/response.mp3", (request, response) => {
 app.post("/twiml", (request, response) => {
   response.setHeader("Content-Type", "application/xml");
   response.render("twiml", { host: request.hostname, layout: false });
-});
-
-
-app.get("/liveness_check", (request, response) => {
-  response.set("content-type", "text/plain");
-  response.write("200 Ok");
-  response.end();
-});
-
-app.get("/readiness_check", (request, response) => {
-  response.set("content-type", "text/plain");
-  response.write("200 Ok");
-  response.end();
 });
 
 app.ws("/media", (ws, req) => {
@@ -112,17 +96,8 @@ app.ws("/media", (ws, req) => {
   dialogflowService.on("audio", audio => {
     responseAudio[callSid] = audio;
     callUpdater(callSid, response => {
-      // Google App Engine specifics
-      //if (process.env.GAE_INSTANCE) {
-      // TEMPORARILY DISABLING
-      if (false) {
-        response.play(`${GAE_URL}/audio/${callSid}/response.mp3`);  
-      } else {
-        response.play(`https://${req.hostname}/audio/${callSid}/response.mp3`);
-      }
-
-      
-      if (dialogflowService.isDone) {
+      response.play(`https://${req.hostname}/audio/${callSid}/response.mp3`);
+     if (dialogflowService.isDone) {
         const url = process.env.END_OF_INTERACTION_URL;
         if (url) {
           const queryResult = dialogflowService.getFinalQueryResult();
@@ -142,7 +117,7 @@ app.ws("/media", (ws, req) => {
   });
 
   dialogflowService.on("interrupted", transcript => {
-    // console.log(`interrupted with ${transcript}`);
+    // console.log(`Interrupted with "${transcript}""`);
     
     if (!dialogflowService.isInterrupted) {
       callUpdater(callSid, response => {
