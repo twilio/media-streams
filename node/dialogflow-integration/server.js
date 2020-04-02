@@ -33,7 +33,13 @@ app.get("/", (request, response) => {
 app.get("/audio/:callSid/response.mp3", (request, response) => {
   response.set("content-type", "audio/mp3");
   response.set("accept-ranges", "bytes");
-  response.write(responseAudio[request.params.callSid]);
+  const bytes = responseAudio[request.params.callSid];
+  if (bytes) {
+    response.write(bytes);
+  } else {
+    response.write([]);
+    console.error(`Audio not found for ${request.params.callSid}. Audio exists for the following calls ${Object.keys(responseAudio)}`);
+  }
   response.end();
 });
 
@@ -107,7 +113,9 @@ app.ws("/media", (ws, req) => {
     responseAudio[callSid] = audio;
     callUpdater(callSid, response => {
       // Google App Engine specifics
-      if (process.env.GAE_INSTANCE) {
+      //if (process.env.GAE_INSTANCE) {
+      // TEMPORARILY DISABLING
+      if (false) {
         response.play(`${GAE_URL}/audio/${callSid}/response.mp3`);  
       } else {
         response.play(`https://${req.hostname}/audio/${callSid}/response.mp3`);
