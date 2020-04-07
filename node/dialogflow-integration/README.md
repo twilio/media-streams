@@ -4,9 +4,9 @@ An Express app that responds with TwiML to `<Start>` a MediaStream and connect i
 
 ## Prerequisites
 
-* Setup a Dialogflow Agent and make note of the Google Project ID
-* Download your Google Credentials (that has access to your project) to a file named `google_creds.json` and put that in the root of this folder.
-* OptionallyL Setup and Configure the **gcloud** command line tool so that you can deploy to [Google AppEngine](https://cloud.google.com/sdk/gcloud/reference/app)
+* Setup a [Dialogflow Agent](https://cloud.google.com/dialogflow/docs/agents-overview) and make note of the Google Project ID
+* Download your [Google Credentials](https://cloud.google.com/docs/authentication/getting-started) (that has access to your Dialogflow project) to a file named `google_creds.json` store that in the root of this folder.
+* Optional: Setup and Configure the **gcloud** command line tool so that you can deploy to [Google AppEngine](https://cloud.google.com/sdk/gcloud/reference/app)
 
 ## Installation
 
