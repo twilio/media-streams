@@ -1,6 +1,6 @@
-# MediaStreams => DialogFlow
+# Google Dialogflow Integration
 
-An express app that responds with TwiML to `<Start>` a MediaStream and connect it to DialogFlow.
+An Express app that responds with TwiML to `<Start>` a MediaStream and connect it with a specified [Dialogflow](https://dialogflow.com/).
 
 ## Installation
 
@@ -8,42 +8,61 @@ An express app that responds with TwiML to `<Start>` a MediaStream and connect i
 npm install
 ```
 
-Populate your .env file from the .env.example using `configure-env`
+Populate your `.env` file from the `.env.example` file using `configure-env`
 
 ```bash
 npx configure-env
 ```
 
-Wire up a Twilio number with an incoming handler to your server `/twiml`. Use ngrok for local development.
+Install the [Twilio CLI](https://www.twilio.com/docs/twilio-cli/quickstart)
 
-Wire up your Twilio number with your endpoint on incoming calls.
+Optional: Purchase a Twilio number (or use an existing one)
+
+Optional: Search for available numbers in the **650** area code in the US
 
 ```bash
-twilio api:core:incoming-phone-numbers:update --sid=PNXXXXXXXXXXXXXXXXXXXXXX --voice-url=https://<YOUR WEB URL>/twiml
+twilio api:core:available-phone-numbers:local:list  --area-code="650" --country-code=US --voice-enabled
 ```
 
-Store your Google Credential file and in the root in a file named `google_creds.json`
+Optional: Buy a number
 
+```bash
+twilio api:core:incoming-phone-numbers:create --phone-number="+16505551234"
+```
 
-#### Local development
+### Develop locally
+
+Start the server locally
 
 ```bash
 npm start
 ```
 
-#### Deploy to AppEngine
+Wire up your Twilio number with your endpoint on incoming calls. This will automatically start an [ngrok](https://ngrok.com) tunnel to your machine.
+
+```bash
+twilio api:core:incoming-phone-numbers:update --sid=PNXXXXXXXXXXXXXXXXXXXXXX --voice-url=https://localhost:3000/twiml
+```
+
+### Deploy to AppEngine
 
 ```bash
 gcloud app deploy
 ```
 
+Point your Incoming Webhook to your AppEngine instance.
+
+```bash
+twilio api:core:incoming-phone-numbers:update --sid=PNXXXXXXXXXXXXXXXXXXXXXX --voice-url=https://YOUR-APPENGINE-INSTANCE.appspot.com/twiml
+```
+
 ## Capture Intent after End of Interaction
 
-If you set `END_OF_INTERACTION_URL` to a Webhook that you host, you can handle events. You will receive `dialogflowJSON` as a querystring on your webhook.
+If you set `END_OF_INTERACTION_URL` in your `.env` file to a Webhook that you host, you can handle events. You will receive `dialogflowJSON` as a querystring on your Webhook.
 
 The JSON will contain the Intent's information for you to code your response.
 
-Here is an example using a Twilio Function:
+Here is an example using a [Twilio Function](https://www.twilio.com/docs/runtime/functions):
 
 ```javascript
 exports.handler = function(context, event, callback) {
@@ -59,5 +78,5 @@ exports.handler = function(context, event, callback) {
       twiml.hangup();
   }
   callback(null, twiml);
-}; 
+}
 ```
