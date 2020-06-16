@@ -1,0 +1,23 @@
+{
+  "name": "basic",
+  "version": "0.0.1",
+  "description": "Basic Programmable Streams demo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "httpdispatcher": "^2.1.2",
+    "websocket": "^1.0.28"
+  }
+}
