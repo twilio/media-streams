@@ -1,6 +1,6 @@
 # Google Dialogflow Integration
 
-An Express app that responds with TwiML to `<Start>` a MediaStream and connect it with a specified [Dialogflow](https://dialogflow.com/).
+An Express app that responds with TwiML to `<Connect>` to a MediaStream and connect it with a specified [Dialogflow](https://dialogflow.com/).
 
 ## Prerequisites
 
