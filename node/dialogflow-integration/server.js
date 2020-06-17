@@ -9,9 +9,6 @@ const { DialogflowService } = require("./dialogflow-utils");
 
 const PORT = process.env.PORT || 3000;
 
-// Global callSid to Audio
-const responseAudio = {};
-
 const app = express();
 // extend express app with app.ws()
 expressWebSocket(app, null, {
@@ -27,23 +24,12 @@ app.get("/", (request, response) => {
   response.render("home", { layout: false });
 });
 
-app.get("/audio/:callSid/response.mp3", (request, response) => {
-  response.set("content-type", "audio/mp3");
-  response.set("accept-ranges", "bytes");
-  const bytes = responseAudio[request.params.callSid];
-  if (bytes) {
-    response.write(bytes);
-  } else {
-    response.write("");
-    console.error(`Audio not found for ${request.params.callSid}. Audio exists for the following calls ${Object.keys(responseAudio)}`);
-  }
-  response.end();
-});
-
 // Responds with Twilio instructions to begin the stream
 app.post("/twiml", (request, response) => {
   response.setHeader("Content-Type", "application/xml");
-  response.render("twiml", { host: request.hostname, layout: false });
+  // ngrok sets x-original-host header
+  const host = request.headers['x-original-host'] || request.hostname;
+  response.render("twiml", { host, layout: false });
 });
 
 app.ws("/media", (ws, req) => {
@@ -60,14 +46,79 @@ app.ws("/media", (ws, req) => {
   }
   // This will get populated on callStarted
   let callSid;
+  let streamSid;
   // MediaStream coming from Twilio
-  const mediaStream = websocketStream(ws);
+  const mediaStream = websocketStream(ws, {
+    binary: false
+  });
   const dialogflowService = new DialogflowService();
 
-  // Reusable Consumer
-  function callUpdater(callSid, twimlGeneratorFunction) {
+  mediaStream.on("data", data => {
+    dialogflowService.send(data);
+  });
+
+  mediaStream.on("finish", () => {
+    console.log("MediaStream has finished");
+    dialogflowService.finish();
+  });
+
+  dialogflowService.on("callStarted", data => {
+    callSid = data.callSid;
+    streamSid = data.streamSid;
+  });
+
+  dialogflowService.on("audio", audio => {
+    const mediaMessage = {
+      streamSid,
+      event: "media",
+      media: {
+        payload: audio
+      }
+    };
+    const mediaJSON = JSON.stringify(mediaMessage);
+    console.log(`Sending audio (${audio.length} characters)`);
+    mediaStream.write(mediaJSON);
+    // If this is the last message
+    if (dialogflowService.isStopped) {
+      const markMessage = {
+        streamSid,
+        event: "mark",
+        mark: {
+          name: "endOfInteraction"
+        }
+      };
+      const markJSON = JSON.stringify(markMessage);
+      console.log("Sending end of interaction mark", markJSON);
+      mediaStream.write(markJSON);
+    }
+  });
+
+  dialogflowService.on("interrupted", transcript => {
+    console.log(`Interrupted with "${transcript}"`);
+    if (!dialogflowService.isInterrupted) {
+      console.log("Clearing...");
+      const clearMessage = {
+        event: "clear",
+        streamSid
+      };
+      mediaStream.write(JSON.stringify(clearMessage));
+      dialogflowService.isInterrupted = true;
+    }
+  });
+
+  dialogflowService.on("endOfInteraction", (queryResult) => {
     const response = new Twilio.twiml.VoiceResponse();
-    twimlGeneratorFunction(response);
+    const url = process.env.END_OF_INTERACTION_URL;
+    if (url) {
+      const qs = JSON.stringify(queryResult);
+      // In case the URL has a ?, use an ampersand
+      const appendage = url.includes("?") ? "&" : "?";
+      response.redirect(
+        `${url}${appendage}dialogflowJSON=${encodeURIComponent(qs)}`
+      );
+    } else {
+      response.hangup();
+    }
     const twiml = response.toString();
     return client
       .calls(callSid)
@@ -76,57 +127,9 @@ app.ws("/media", (ws, req) => {
         console.log(`Updated Call(${callSid}) with twiml: ${twiml}`)
       )
       .catch(err => console.error(err));
-  }
-
-  mediaStream.on("data", data => {
-    dialogflowService.send(data);
   });
 
-  mediaStream.on("finish", () => {
-    console.log("MediaStream has finished");
-    dialogflowService.stop();
-    // Remove the last audio
-    delete responseAudio[callSid];
-  });
 
-  dialogflowService.on("callStarted", data => {
-    callSid = data;
-  });
-
-  dialogflowService.on("audio", audio => {
-    responseAudio[callSid] = audio;
-    callUpdater(callSid, response => {
-      response.play(`https://${req.hostname}/audio/${callSid}/response.mp3`);
-     if (dialogflowService.isDone) {
-        const url = process.env.END_OF_INTERACTION_URL;
-        if (url) {
-          const queryResult = dialogflowService.getFinalQueryResult();
-          const qs = JSON.stringify(queryResult);
-          // In case the URL has a ?, use an ampersand
-          const appendage = url.includes("?") ? "&" : "?";
-          response.redirect(
-            `${url}${appendage}dialogflowJSON=${encodeURIComponent(qs)}`
-          );
-        } else {
-          response.hangup();
-        }
-      } else {
-        response.pause({ length: "120" });
-      }
-    });
-  });
-
-  dialogflowService.on("interrupted", transcript => {
-    // console.log(`Interrupted with "${transcript}""`);
-    
-    if (!dialogflowService.isInterrupted) {
-      callUpdater(callSid, response => {
-        response.pause({ length: 120 });
-      });
-      dialogflowService.isInterrupted = true;
-    }
-  });
-  dialogflowService.on("error", err => console.error(err));
 });
 
 const listener = app.listen(PORT, () => {

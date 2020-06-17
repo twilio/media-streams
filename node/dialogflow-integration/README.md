@@ -47,7 +47,7 @@ npm start
 Wire up your Twilio number with your endpoint on incoming calls. This will automatically start an [ngrok](https://ngrok.com) tunnel to your machine.
 
 ```bash
-twilio api:core:incoming-phone-numbers:update --sid=PNXXXXXXXXXXXXXXXXXXXXXX --voice-url=https://localhost:3000/twiml
+twilio phone-numbers:update +15552223333 --voice-url=http://localhost:3000/twiml
 ```
 
 ### Deploy to AppEngine
@@ -59,7 +59,7 @@ gcloud app deploy
 Point your Incoming Webhook to your AppEngine instance.
 
 ```bash
-twilio api:core:incoming-phone-numbers:update --sid=PNXXXXXXXXXXXXXXXXXXXXXX --voice-url=https://YOUR-APPENGINE-INSTANCE.appspot.com/twiml
+twilio phone-numbers:update +15552223333 --voice-url=https://YOUR-APPENGINE-INSTANCE.appspot.com/twiml
 ```
 
 ## Capture Intent after End of Interaction
