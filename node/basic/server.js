@@ -72,9 +72,8 @@ class MediaStream {
           this.hasSeenMedia = true;
         }
       }
-      if (data.event === "close") {
-        log('Media WS: Close event received: ', data);
-        this.close();
+      if (data.event === "stop") {
+        log('Media WS: Stop event received: ', data);
       }
       this.messageCount++;
     } else if (message.type === 'binary') {
@@ -83,7 +82,7 @@ class MediaStream {
   }
 
   close(){
-    log('Media WS: Closed. Received a total of [' + this.messageCount + '] messages');
+    log('Media WS: Stopped. Received a total of [' + this.messageCount + '] messages');
   }
 }
 
