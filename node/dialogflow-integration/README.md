@@ -2,6 +2,8 @@
 
 An Express app that responds with TwiML to `<Connect>` to a MediaStream and connect it with a specified [Dialogflow](https://dialogflow.com/).
 
+![Diagram](https://copper-pekingese-7544.twil.io/assets/Media%20Streams%20%2B%20DialogFlow.png)
+
 ## Prerequisites
 
 * Setup a [Dialogflow Agent](https://cloud.google.com/dialogflow/docs/agents-overview) and make note of the Google Project ID
