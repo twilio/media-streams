@@ -31,7 +31,7 @@ class SpeechClientBridge:
             self._on_response(response)
 
             if self._ended:
-              break;
+                break
 
     def generator(self):
         while not self._ended:

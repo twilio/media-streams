@@ -20,10 +20,12 @@ streaming_config = StreamingRecognitionConfig(config=config, interim_results=Tru
 app = Flask(__name__)
 sockets = Sockets(app)
 
-@app.route('/twiml', methods=['POST'])
+
+@app.route("/twiml", methods=["POST"])
 def return_twiml():
     print("POST TwiML")
-    return render_template('streams.xml')
+    return render_template("streams.xml")
+
 
 def on_transcription_response(response):
     if not response.results:
@@ -36,7 +38,8 @@ def on_transcription_response(response):
     transcription = result.alternatives[0].transcript
     print("Transcription: " + transcription)
 
-@sockets.route('/')
+
+@sockets.route("/")
 def transcript(ws):
     print("WS connection opened")
     bridge = SpeechClientBridge(streaming_config, on_transcription_response)
@@ -66,10 +69,13 @@ def transcript(ws):
     bridge.terminate()
     print("WS connection closed")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     from gevent import pywsgi
     from geventwebsocket.handler import WebSocketHandler
 
-    server = pywsgi.WSGIServer(('', HTTP_SERVER_PORT), app, handler_class=WebSocketHandler)
+    server = pywsgi.WSGIServer(
+        ("", HTTP_SERVER_PORT), app, handler_class=WebSocketHandler
+    )
     print("Server listening on: http://localhost:" + str(HTTP_SERVER_PORT))
     server.serve_forever()
