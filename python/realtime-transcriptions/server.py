@@ -1,22 +1,21 @@
+import base64
+import json
+import threading
+
 from flask import Flask, render_template
 from flask_sockets import Sockets
+from google.cloud.speech import RecognitionConfig, StreamingRecognitionConfig
 
 from SpeechClientBridge import SpeechClientBridge
-from google.cloud.speech import enums
-from google.cloud.speech import types
-
-import json
-import base64
 
 HTTP_SERVER_PORT = 8080
 
-config = types.RecognitionConfig(
-    encoding=enums.RecognitionConfig.AudioEncoding.MULAW,
+config = RecognitionConfig(
+    encoding=RecognitionConfig.AudioEncoding.MULAW,
     sample_rate_hertz=8000,
-    language_code='en-US')
-streaming_config = types.StreamingRecognitionConfig(
-    config=config,
-    interim_results=True)
+    language_code="en-US",
+)
+streaming_config = StreamingRecognitionConfig(config=config, interim_results=True)
 
 app = Flask(__name__)
 sockets = Sockets(app)
@@ -40,14 +39,14 @@ def on_transcription_response(response):
 @sockets.route('/')
 def transcript(ws):
     print("WS connection opened")
-    bridge = SpeechClientBridge(
-        streaming_config, 
-        on_transcription_response
-    )
+    bridge = SpeechClientBridge(streaming_config, on_transcription_response)
+    t = threading.Thread(target=bridge.start)
+    t.start()
 
     while not ws.closed:
         message = ws.receive()
         if message is None:
+            bridge.add_request(None)
             bridge.terminate()
             break
 
