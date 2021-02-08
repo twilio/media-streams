@@ -1,38 +1,56 @@
 import queue
-from threading import Thread
+
 from google.cloud import speech
-from google.cloud.speech import types
+
 
 class SpeechClientBridge:
     def __init__(self, streaming_config, on_response):
         self._on_response = on_response
         self._queue = queue.Queue()
         self._ended = False
+        self.streaming_config = streaming_config
 
+    def start(self):
         client = speech.SpeechClient()
-        responses = client.streaming_recognize(
-            streaming_config, 
-            self.get_requests()
+        stream = self.generator()
+        requests = (
+            speech.StreamingRecognizeRequest(audio_content=content)
+            for content in stream
         )
-        self.process_responses(responses)
+        responses = client.streaming_recognize(self.streaming_config, requests)
+        self.process_responses_loop(responses)
 
     def terminate(self):
         self._ended = True
 
     def add_request(self, buffer):
-        self._queue.put(types.StreamingRecognizeRequest(audio_content=bytes(buffer)))
-
-    def get_requests(self):
-        while not self._ended:
-            yield self._queue.get()
-
-    def process_responses(self, responses):
-        thread = Thread(target=self.process_responses_loop, args=[responses])
-        thread.start()
+        self._queue.put(bytes(buffer), block=False)
 
     def process_responses_loop(self, responses):
         for response in responses:
             self._on_response(response)
 
             if self._ended:
-              break;
+                break
+
+    def generator(self):
+        while not self._ended:
+            # Use a blocking get() to ensure there's at least one chunk of
+            # data, and stop iteration if the chunk is None, indicating the
+            # end of the audio stream.
+            chunk = self._queue.get()
+            if chunk is None:
+                return
+            data = [chunk]
+
+            # Now consume whatever other data's still buffered.
+            while True:
+                try:
+                    chunk = self._queue.get(block=False)
+                    if chunk is None:
+                        return
+                    data.append(chunk)
+                except queue.Empty:
+                    break
+
+            yield b"".join(data)
