@@ -36,7 +36,7 @@ app.ws("/media", (ws, req) => {
   let client;
   try {
     client = new Twilio();
-  } catch(err) {
+  } catch (err) {
     if (process.env.TWILIO_ACCOUNT_SID === undefined) {
       console.error('Ensure that you have set your environment variable TWILIO_ACCOUNT_SID. This can be copied from https://twilio.com/console');
       console.log('Exiting');
@@ -130,6 +130,11 @@ app.ws("/media", (ws, req) => {
   });
 
 
+});
+
+//Catching any unhandled exception through out the process
+process.on('uncaughtException', (error) => {
+  console.log("unhandled exception caught", error)
 });
 
 const listener = app.listen(PORT, () => {
