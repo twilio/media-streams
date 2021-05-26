@@ -1,0 +1,28 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.example.twilio'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	maven {
+		url "https://csspeechstorage.blob.core.windows.net/maven/"
+	}
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'com.twilio.sdk:twilio:8.12.0'
+	implementation group: 'com.microsoft.cognitiveservices.speech', name: 'client-sdk', version: "1.16.0", ext: "jar"
+	implementation 'com.fasterxml.jackson.core:jackson-core:2.12.3'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+	useJUnitPlatform()
+}

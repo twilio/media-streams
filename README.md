@@ -20,7 +20,8 @@ This repository consists of examples of consuming [Twilio Media Streams](https:/
 ### Java
 
 * [Basic](java/basic/README.md)
-* [Realtime Transcription](java/realtime-transcriptions/README.md)
+* [Realtime Transcription with Google Speech-to-Text](java/realtime-transcriptions-google/README.md)
+* [Realtime Transcription with Azure Cognitive Services](java/realtime-transcriptions-azure/README.md)
 * [Save Audio](java/save-audio/README.md) 
 
 ### Ruby/Rails
