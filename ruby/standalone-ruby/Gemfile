@@ -35,7 +35,7 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   # Adds support for Capybara system testing and selenium driver
-  gem 'capybara', '>= 2.15'
+  gem 'capybara', '>= 3.23.0'
   gem 'selenium-webdriver'
 end
 
@@ -53,4 +53,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "twilio-ruby"
 gem "em-websocket"
-gem "google-cloud-speech"
+gem "google-cloud-speech", ">= 0.34.1"
