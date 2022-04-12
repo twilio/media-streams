@@ -22,7 +22,7 @@ public class WebSocketHandler {
     final static Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
     final static Map<Session, Integer> messageCounts = new ConcurrentHashMap<>();
     final static Map<Session, Boolean> hasSessionSeenMedia = new ConcurrentHashMap<>();
-    final static Integer repeatThreshold = 50;
+    final static Integer repeatThreshold = 10;
     ArrayList<String> mediaMessages = new ArrayList<String>();
     
     @OnWebSocketConnect
@@ -52,8 +52,13 @@ public class WebSocketHandler {
                 if (mediaMessages.size() >= repeatThreshold){
                     logger.info("Accumulated {} messages", mediaMessages.size());
                     repeat(session);
-                }
-                
+                }   
+            }
+            if (event.equals("mark")) {
+                logger.info("Media WS: Mark event received: {}", message);
+            }
+            if (event.equals("close")) {
+                logger.info("Media WS: Close event received: {}", message);
             }
             messageCounts.merge(session, 1, Integer::sum);
             
@@ -64,15 +69,19 @@ public class WebSocketHandler {
     }
 
     public void repeat(Session session){
-        JSONObject msg = new JSONObject(mediaMessages.get(0));
+        // ArrayList<String> playMessages = new ArrayList<String>();
+        ArrayList<String> playMessages = (ArrayList<String>)mediaMessages.clone();
+        mediaMessages.clear();
+
+        JSONObject msg = new JSONObject(playMessages.get(0));
 
         String streamSid = msg.getString("streamSid");
         logger.info("StreamSid: {}", streamSid);
 
         String payloadsCombined="";
 
-        for (int i=0; i<mediaMessages.size(); i++){
-            msg = new JSONObject(mediaMessages.get(i));
+        for (int i=0; i<playMessages.size(); i++){
+            msg = new JSONObject(playMessages.get(i));
             JSONObject mediaJSON = msg.getJSONObject("media");
             byte[] decoded = Base64.getDecoder().decode(mediaJSON.getString("payload"));
             try{
@@ -104,7 +113,7 @@ public class WebSocketHandler {
 
 
         // send the data
-        logger.info("Sending {}", jsonResponse.toString());
+        //logger.info("Sending {}", jsonResponse.toString());
         try{
             session.getRemote().sendString(jsonResponse.toString());
         } catch (IOException e) {
@@ -113,8 +122,6 @@ public class WebSocketHandler {
 
         // TODO: send mark event
 
-        // zero the counters
-        mediaMessages.clear();
         logger.info("cleared count: {}", mediaMessages.size());
 
     }
