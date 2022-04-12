@@ -1,6 +1,5 @@
 package com.twilio.examples.connectBasic;
 
-import java.util.*;  
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -11,8 +10,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,12 +25,12 @@ public class WebSocketHandler {
     final static Map<Session, Boolean> hasSessionSeenMedia = new ConcurrentHashMap<>();
     final static Integer repeatThreshold = 10;
     ArrayList<String> mediaMessages = new ArrayList<String>();
-    
+
     @OnWebSocketConnect
     public void connected(Session session) {
         logger.info("Media WS: Connection Accepted");
     }
-    
+
     @OnWebSocketMessage
     public void message(Session session, String message) throws IOException {
         try {
@@ -49,10 +50,10 @@ public class WebSocketHandler {
                     hasSessionSeenMedia.put(session, true);
                 }
                 mediaMessages.add(message);
-                if (mediaMessages.size() >= repeatThreshold){
+                if (mediaMessages.size() >= repeatThreshold) {
                     logger.info("Accumulated {} messages", mediaMessages.size());
                     repeat(session);
-                }   
+                }
             }
             if (event.equals("mark")) {
                 logger.info("Media WS: Mark event received: {}", message);
@@ -61,16 +62,15 @@ public class WebSocketHandler {
                 logger.info("Media WS: Close event received: {}", message);
             }
             messageCounts.merge(session, 1, Integer::sum);
-            
-            
+
+
         } catch (JSONException e) {
-            logger.error("Unrecognized JSON: {}", e);
+            logger.error("Unrecognized JSON", e);
         }
     }
 
-    public void repeat(Session session){
-        // ArrayList<String> playMessages = new ArrayList<String>();
-        ArrayList<String> playMessages = (ArrayList<String>)mediaMessages.clone();
+    public void repeat(Session session) throws IOException {
+        ArrayList<String> playMessages = (ArrayList<String>) mediaMessages.clone();
         mediaMessages.clear();
 
         JSONObject msg = new JSONObject(playMessages.get(0));
@@ -78,26 +78,20 @@ public class WebSocketHandler {
         String streamSid = msg.getString("streamSid");
         logger.info("StreamSid: {}", streamSid);
 
-        String payloadsCombined="";
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        for (int i=0; i<playMessages.size(); i++){
-            msg = new JSONObject(playMessages.get(i));
+        for (String playMessage : playMessages) {
+            msg = new JSONObject(playMessage);
             JSONObject mediaJSON = msg.getJSONObject("media");
             byte[] decoded = Base64.getDecoder().decode(mediaJSON.getString("payload"));
-            try{
-                payloadsCombined = payloadsCombined.concat(new String(decoded, "UTF-8"));
-            } catch (IOException e) {
-                logger.error("encoding/decoding error: {}", e);
-            }
+            outputStream.write(decoded);
         }
-        //logger.info("Final payload: {}", payloadsCombined);
 
-        byte[] encodedBytes = Base64.getEncoder().encode(payloadsCombined.getBytes());
+        byte[] encodedBytes = Base64.getEncoder().encode(outputStream.toByteArray());
 
-        String response;
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("event", "media");
-        jsonResponse.put("streamSid",streamSid);
+        jsonResponse.put("streamSid", streamSid);
 
         JSONObject jsonMedia = new JSONObject();
         jsonMedia.put("payload", new String(encodedBytes));
@@ -114,10 +108,10 @@ public class WebSocketHandler {
 
         // send the data
         //logger.info("Sending {}", jsonResponse.toString());
-        try{
+        try {
             session.getRemote().sendString(jsonResponse.toString());
         } catch (IOException e) {
-            logger.error("sending error: {}", e);
+            logger.error("sending error", e);
         }
 
         // TODO: send mark event
@@ -125,9 +119,8 @@ public class WebSocketHandler {
         logger.info("cleared count: {}", mediaMessages.size());
 
     }
-    
-    
-    
+
+
     @OnWebSocketClose
     public void closed(Session session, int statusCode, String reason) {
         Integer count = messageCounts.remove(session);
