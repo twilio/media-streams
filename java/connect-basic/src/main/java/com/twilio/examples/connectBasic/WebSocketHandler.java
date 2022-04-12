@@ -1,4 +1,4 @@
-package com.twilio.examples.basic;
+package com.twilio.examples.connectBasic;
 
 import java.util.*;  
 import org.eclipse.jetty.websocket.api.Session;

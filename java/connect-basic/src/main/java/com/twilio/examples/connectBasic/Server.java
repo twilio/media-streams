@@ -1,4 +1,4 @@
-package com.twilio.examples.basic;
+package com.twilio.examples.connectBasic;
 
 import static spark.Spark.*;
 import spark.ModelAndView;
