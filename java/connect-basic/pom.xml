@@ -50,7 +50,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <configuration>
-                    <mainClass>com.twilio.examples.basic.Server</mainClass>
+                    <mainClass>com.twilio.examples.connectBasic.Server</mainClass>
                     <arguments>
                     </arguments>
                 </configuration>
