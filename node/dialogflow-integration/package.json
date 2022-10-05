@@ -11,13 +11,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dialogflow": "^1.2.0",
+    "dialogflow": "^4.0.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-handlebars": "^3.1.0",
     "express-ws": "^4.0.0",
     "structjson": "^1.0.1",
-    "twilio": "^3.41.1",
+    "twilio": "^3.54.2",
     "uuid": "^7.0.2",
     "wavefile": "^11.0.0",
     "websocket-stream": "^5.5.2"
