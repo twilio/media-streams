@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.0",
+    "express": "^4.17.3",
     "express-ws": "^4.0.0",
     "watson-developer-cloud": "^4.0.1",
     "websocket-stream": "^5.5.0"
