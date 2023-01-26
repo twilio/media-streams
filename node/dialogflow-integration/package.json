@@ -17,7 +17,7 @@
     "express-handlebars": "^3.1.0",
     "express-ws": "^4.0.0",
     "structjson": "^1.0.1",
-    "twilio": "^3.41.1",
+    "twilio": "^4.0.0",
     "uuid": "^7.0.2",
     "wavefile": "^11.0.0",
     "websocket-stream": "^5.5.2"
