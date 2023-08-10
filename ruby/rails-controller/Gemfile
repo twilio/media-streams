@@ -53,4 +53,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "twilio-ruby"
 gem 'tubesock'
-gem "google-cloud-speech"
+gem "google-cloud-speech", ">= 0.35.0"
