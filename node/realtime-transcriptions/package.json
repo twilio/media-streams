@@ -20,6 +20,6 @@
     "dotenv": "^4.0.0",
     "httpdispatcher": "^2.1.2",
     "websocket": "^1.0.28",
-    "@google-cloud/speech": "^1.5.0"
+    "@google-cloud/speech": "^3.0.0"
   }
 }
