@@ -29,13 +29,13 @@ You can setup your environment to run the demo by using the CLI.
 1. Find available phone number
 
 ```bash
-twilio api:core:available-phone-numbers:local:list --country-code="US" --voice-enabled --properties="phoneNumber"`
+twilio api:core:available-phone-numbers:local:list --country-code="US" --voice-enabled --properties="phoneNumber"
 ```
 
 2. Purchase the phone number (where `+123456789` is a number you found)
 
 ```bash
-twilio api:core:incoming-phone-numbers:create --phone-number="+123456789"`
+twilio api:core:incoming-phone-numbers:create --phone-number="+123456789"
 ```
 
 3. Start ngrok
