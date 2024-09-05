@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.0",
-    "express-ws": "^4.0.0",
+    "express-ws": "^5.0.1",
     "watson-developer-cloud": "^4.0.1",
     "websocket-stream": "^5.5.0"
   },
