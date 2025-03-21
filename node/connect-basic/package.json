@@ -18,6 +18,7 @@
   "homepage": "",
   "dependencies": {
     "httpdispatcher": "^2.1.2",
+    "wavefile": "^11.0.0",
     "websocket": "^1.0.28"
   }
 }

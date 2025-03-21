@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const WaveFile = require("wavefile").WaveFile;
 var http = require("http");
 var HttpDispatcher = require("httpdispatcher");
 var WebSocketServer = require("websocket").server;
@@ -65,6 +66,8 @@ class MediaStream {
       }
       if (data.event === "start") {
         log("From Twilio: Start event received: ", data);
+
+        this.sendAudio(data.streamSid);
       }
       if (data.event === "media") {
         if (!this.hasSeenMedia) {
@@ -89,6 +92,38 @@ class MediaStream {
     } else if (message.type === "binary") {
       log("From Twilio: binary message received (not supported)");
     }
+  }
+
+  sendAudio(streamSid) {
+    // Generate a base64-encoded audio payload
+    const audioBase64 = this.generateAudio();
+
+    const message = {
+      event: "media",
+      streamSid,
+      media: {
+        payload: audioBase64,
+      },
+    };
+
+    const messageJSON = JSON.stringify(message);
+    log("To Twilio: Sending audio message", messageJSON);
+    this.connection.sendUTF(messageJSON);
+  }
+
+  generateAudio() {
+    const audioFilePath = path.join(__dirname, "sampleAudio.wav");
+    const audioBuffer = fs.readFileSync(audioFilePath);
+
+    const wav = new WaveFile(audioBuffer);
+    wav.toSampleRate(8000);
+    wav.toMuLaw();
+
+    const convertedAudio = Buffer.from(wav.data.samples).toString('base64');
+
+    log("Converted Audio: ", convertedAudio);
+
+    return convertedAudio;
   }
 
   repeat() {
