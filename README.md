@@ -12,7 +12,7 @@ This repository consists of examples of consuming [Twilio Media Streams](https:/
 ### Node.js
 
 * [Basic](node/basic/README.md)
-* [Realtime Transcription](node/realtime-transcriptions/README.md)
+* [Realtime Transcription](node/realtime-transcriptions/README.md) UPDATED 2025
 * [Realtime Keyword Detection](node/keyword-detection/README.md)
 * [Google Dialogflow Integration](node/dialogflow-integration)
 * [Amazon Transcribe Integration](https://github.com/TwilioDevEd/talkin-cedric)

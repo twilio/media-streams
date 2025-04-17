@@ -1,97 +1,86 @@
-"use strict";
-require('dotenv').load();
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import TranscriptionService from './transcription-service.js';
 
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
-const HttpDispatcher = require('httpdispatcher');
-const WebSocketServer = require('websocket').server;
-const TranscriptionService = require('./transcription-service');
+dotenv.config();
 
-const dispatcher = new HttpDispatcher();
-const wsserver = http.createServer(handleRequest);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const HTTP_SERVER_PORT = 8080;
+const HTTP_SERVER_PORT = process.env.PORT || 8080;
 
 function log(message, ...args) {
-  console.log(new Date(), message, ...args);
+  console.log(new Date().toISOString(), message, ...args);
 }
 
-const mediaws = new WebSocketServer({
-  httpServer: wsserver,
-  autoAcceptConnections: true,
+const app = express();
+const httpServer = createServer(app);
+const mediaws = new WebSocketServer({ server: httpServer });
+
+// Serve static XML TwiML template
+app.post('/twiml', (req, res) => {
+  const filePath = path.join(__dirname, 'templates', 'streams.xml');
+  res.setHeader('Content-Type', 'text/xml');
+  fs.createReadStream(filePath).pipe(res);
 });
 
-
-function handleRequest(request, response){
-  try {
-    dispatcher.dispatch(request, response);
-  } catch(err) {
-    console.error(err);
-  }
-}
-
-dispatcher.onPost('/twiml', function(req,res) {
-  log('POST TwiML');
-
-  var filePath = path.join(__dirname+'/templates', 'streams.xml');
-  var stat = fs.statSync(filePath);
-
-  res.writeHead(200, {
-    'Content-Type': 'text/xml',
-    'Content-Length': stat.size
-  });
-
-  var readStream = fs.createReadStream(filePath);
-  readStream.pipe(res);
-});
-
-mediaws.on('connect', function(connection) {
+// Handle Media Stream connections
+mediaws.on('connection', (connection) => {
   log('Media WS: Connection accepted');
   new MediaStreamHandler(connection);
 });
 
+// MediaStreamHandler class
 class MediaStreamHandler {
   constructor(connection) {
     this.metaData = null;
     this.trackHandlers = {};
+
     connection.on('message', this.processMessage.bind(this));
     connection.on('close', this.close.bind(this));
   }
 
-  processMessage(message){
-    if (message.type === 'utf8') {
-      const data = JSON.parse(message.utf8Data);
-      if (data.event === "start") {
+  processMessage(message) {
+    try {
+      const data = JSON.parse(message);
+
+      if (data.event === 'start') {
         this.metaData = data.start;
-      }
-      if (data.event !== "media") {
         return;
       }
+
+      if (data.event !== 'media') return;
+
       const track = data.media.track;
-      if (this.trackHandlers[track] === undefined) {
+      if (!this.trackHandlers[track]) {
         const service = new TranscriptionService();
         service.on('transcription', (transcription) => {
-          log(`Transcription (${track}): ${transcription}`);
+          log(`Transcription (${track}):`, transcription);
         });
         this.trackHandlers[track] = service;
       }
+
       this.trackHandlers[track].send(data.media.payload);
-    } else if (message.type === 'binary') {
-      log('Media WS: binary message received (not supported)');
+    } catch (err) {
+      log('Failed to parse message:', err);
     }
   }
 
-  close(){
-    log('Media WS: closed');
+  close() {
+    log('Media WS: Connection closed');
 
-    for (let track of Object.keys(this.trackHandlers)) {
-      log(`Closing ${track} handler`);
+    for (const track of Object.keys(this.trackHandlers)) {
+      log(`Closing handler for track: ${track}`);
       this.trackHandlers[track].close();
     }
   }
 }
 
-wsserver.listen(HTTP_SERVER_PORT, function(){
-  console.log("Server listening on: http://localhost:%s", HTTP_SERVER_PORT);
+httpServer.listen(HTTP_SERVER_PORT, () => {
+  console.log(`Server listening on http://localhost:${HTTP_SERVER_PORT}`);
 });

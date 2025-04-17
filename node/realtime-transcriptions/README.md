@@ -1,69 +1,38 @@
-# RealTimeTranscription Demo
+# Media Streams Demos
 
-This demo is a server application consuming audio from Twilio Media Streams and using Google Cloud Speech to perform realtime transcriptions.
+This repository consists of examples of consuming [Twilio Media Streams](https://www.twilio.com/docs/voice/tutorials/consume-real-time-media-stream-using-websockets-python-and-flask) via WebSockets.
 
-## App sever setup
+## By programming language
 
-### Enable Google Cloud Speech API
+### Python
 
-https://console.cloud.google.com/launcher/details/google/speech.googleapis.com
+* [Basic](python/basic/README.md)
+* [Realtime Transcription](python/realtime-transcriptions/README.md)
 
-* Select a Project
-* Enable or Manage
-* Choose Credentials
-  * Create a new Credential or make sure you have the JSON
-  * Copy JSON and save as `google_creds.json` in the root of this project
+### Node.js
 
-### Installation
+* [Basic](node/basic/README.md)
+* [Realtime Transcription](node/realtime-transcriptions/README.md) –
+  - Updated to use `express`, `ws`, and native ES modules
+  - Integrated with Google Cloud Speech-to-Text
+  - Provides real-time transcription of Twilio audio stream
+  - Uses `/twiml` POST route to return static TwiML XML
+* [Realtime Keyword Detection](node/keyword-detection/README.md)
+* [Google Dialogflow Integration](node/dialogflow-integration)
+* [Amazon Transcribe Integration](https://github.com/TwilioDevEd/talkin-cedric)
 
-**Requires Node >= v12.1.0**
+### Java
 
-Run `npm install`
+* [Basic](java/basic/README.md)
+* [Realtime Transcription](java/realtime-transcriptions/README.md)
+* [Save Audio](java/save-audio/README.md)
 
-#### npm dependencies (defined in the `package.json`):
+### Ruby/Rails
 
-* dotenv
-* httpdispatcher
-* websocket
-* @google-cloud/speech
+* [Realtime Transcription - Ruby Service](ruby/standalone-ruby/README.md)
+* [Realtime Transcription - Rails Controller](ruby/rails-controller/README.md)
 
-#### Running the server
+## Contributing
 
-Start with `node ./server.js`
+This project welcomes contributions from the community. Please submit a pull request with a clear description of your changes, and ensure that updates to documentation and examples remain consistent across programming languages.
 
-#### Useful pointers
-
-https://cloud.google.com/nodejs/docs/reference/speech/2.2.x/v1.SpeechClient#properties
-
-https://google-cloud-python.readthedocs.io/en/0.32.0/speech/gapic/api.html
-
-https://github.com/GoogleCloudPlatform/python-docs-samples/blob/master/speech/cloud-client/transcribe_streaming_mic.py
-
-## Setup
-
-You can setup your environment to run the demo by using the CLI (BETA) or the Console.
-
-### Configure using the CLI
-
-1. Find available phone number
-`twilio api:core:available-phone-numbers:local:list --country-code="US" --voice-enabled --properties="phoneNumber"`
-
-2. Purchase the phone number (where `+123456789` is a number you found)
-`twilio api:core:incoming-phone-numbers:create --phone-number="+123456789"`
-
-3. Start ngrok
-`ngrok http 8080`
-
-4. Edit the `templates/streams` file to replace `<ngrok url>` with your ngrok host.
-
-5. Make the call where `+123456789` is the Twilio number you bought and `+198765432` is your phone number and `abcdef.ngrok.io` is your ngrok host.
-`twilio api:core:calls:create --from="+123456789" --to="+198765432" --url="https://abcdef.ngrok.io/twiml"`
-
-### Configure using the Console
-
-1. Access the [Twilio console](https://www.twilio.com/console/voice/numbers) to get a `<TWILIO-PHONE-NUMBER>`.
-2. Run the server (listening in 8080 port)
-3. Use ngrok to make the server publicly available: `ngrok http 8080`
-4. Edit the streams.xml file in the `templates` directory and add your ngrok URL as `wss://<ngrok url>`
-5. Run the curl command in order to make the proper call
-`curl -XPOST https://api.twilio.com/2010-04-01/Accounts/<ACCOUNT-SID>/Calls.json -d "Url=http://<ngrok url>/twiml" -d "To=<PHONE-NUMBER>" -d "From=<TWILIO-PHONE-NUMBER>" -u <ACCOUNT-SID>:<AUTH-TOKEN>`
